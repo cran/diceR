@@ -11,9 +11,10 @@ test_that("No algorithms means all algorithms, output is an array", {
 
 test_that("Output can be saved with or without time in file name", {
   x1 <- consensus_cluster(hgsc, nk = 2:4, reps = 5, algorithms = "hc",
-                          progress = FALSE, save = TRUE)
+                          progress = FALSE, file.name = "CCOutput")
   x2 <- consensus_cluster(hgsc, nk = 2:4, reps = 5, algorithms = "hc",
-                          progress = FALSE, save = TRUE, time.saved = TRUE)
+                          progress = FALSE, file.name = "CCOutput",
+                          time.saved = TRUE)
   expect_identical(x1, x2)
   file.remove(list.files(pattern = "CCOutput"))
 })
@@ -44,4 +45,10 @@ test_that("no scaling means only choose complete cases and high signal vars", {
   x6 <- consensus_cluster(hgsc, nk = 2, reps = 2, algorithms = "hc",
                           scale = FALSE)
   expect_error(x6, NA)
+})
+
+test_that("t-SNE dimension reduction works", {
+  x7 <- consensus_cluster(hgsc, nk = 4, reps = 1, algorithms = c("hc", "km"),
+                          type = "tsne")
+  expect_error(x7, NA)
 })

@@ -9,7 +9,10 @@ knitr::opts_chunk$set(
 	fig.height = 4.5
 )
 
-## ----install, eval=FALSE-------------------------------------------------
+## ----install_CRAN, message=FALSE, eval=FALSE-----------------------------
+#  install.packages("diceR")
+
+## ----install_github, message=FALSE, eval=FALSE---------------------------
 #  # install.packages("devtools")
 #  devtools::install_github("AlineTalhouk/diceR")
 
@@ -70,4 +73,10 @@ ctrim <- consensus_evaluate(hgsc, CC, CC2, trim = TRUE, reweigh = FALSE, n = 2)
 
 ## ----consensus_evaluate_trim_str-----------------------------------------
 str(ctrim, max.level = 2)
+
+## ----sigclust------------------------------------------------------------
+set.seed(1)
+pam_4 <- ccomb_class2$`4`[, "PAM_Euclidean"]
+sig_obj <- sigclust(hgsc, k = 4, nsim = 100, labflag = 0, label = pam_4)
+str(sig_obj)
 

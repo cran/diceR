@@ -5,11 +5,12 @@
 \title{Consensus clustering}
 \usage{
 consensus_cluster(data, nk = 2:4, p.item = 0.8, reps = 1000,
-  algorithms = NULL, nmf.method = c("brunet", "lee"),
+  algorithms = NULL, nmf.method = c("brunet", "lee"), xdim = NULL,
+  ydim = NULL, rlen = 200, alpha = c(0.05, 0.01), minPts = 5,
   distance = "euclidean", prep.data = c("none", "full", "sampled"),
-  scale = TRUE, type = c("conventional", "robust"), min.var = 1,
-  progress = TRUE, seed.nmf = 123456, seed.data = 1, save = FALSE,
-  file.name = "CCOutput", time.saved = FALSE)
+  scale = TRUE, type = c("conventional", "robust", "tsne", "largevis"),
+  min.var = 1, progress = TRUE, seed.nmf = 123456, seed.data = 1,
+  file.name = NULL, time.saved = FALSE)
 }
 \arguments{
 \item{data}{data matrix with rows as samples and columns as variables}
@@ -24,12 +25,25 @@ algorithm}
 
 \item{algorithms}{vector of clustering algorithms for performing consensus
 clustering. Must be any number of the following: "nmf", "hc", "diana",
-"km", "pam", "ap", "sc", "gmm", "block". A custom clustering algorithm can
-be used.}
+"km", "pam", "ap", "sc", "gmm", "block", "som", "cmeans", "hdbscan". A
+custom clustering algorithm can be used.}
 
 \item{nmf.method}{specify NMF-based algorithms to run. By default the
 "brunet" and "lee" algorithms are called. See \code{\link[NMF]{nmf}} for
 details.}
+
+\item{xdim}{x dimension of the SOM grid}
+
+\item{ydim}{y dimension of the SOM grid}
+
+\item{rlen}{the number of times the complete data set will be presented to
+the SOM network.}
+
+\item{alpha}{SOM learning rate, a vector of two numbers indicating the amount
+of change. Default is to decline linearly from 0.05 to 0.01 over
+\code{rlen} updates. Not used for the batch algorithm.}
+
+\item{minPts}{minimum size of clusters for HDBSCAN. Default is 5.}
 
 \item{distance}{a vector of distance functions. Defaults to "euclidean".
 Other options are given in \code{\link[stats]{dist}}. A custom distance
@@ -43,7 +57,8 @@ function can be used.}
 \item{type}{if we use "conventional" measures (default), then the mean and
 standard deviation are used for centering and scaling, respectively. If
 "robust" measures are specified, the median and median absolute deviation
-(MAD) are used.}
+(MAD) are used. Alternatively, we can apply "tsne" or "largevis" as other
+methods of dimension reduction.}
 
 \item{min.var}{minimum variability measure threshold used to filter the
 feature space for only highly variable features. Only features with a
@@ -59,13 +74,12 @@ used.}
 \item{seed.data}{seed to use to ensure each algorithm operates on the same
 set of subsamples}
 
-\item{save}{logical; if \code{TRUE}, the returned object will be saved at
-each iteration as well as at the end.}
+\item{file.name}{if not \code{NULL}, the returned array will be saved at each
+iteration as well as at the end of the function call to an \code{rds}
+object with \code{file.name} as the file name.}
 
-\item{file.name}{file name of the written object}
-
-\item{time.saved}{logical; if \code{TRUE}, the date saved is appended to the
-file name. Only applicable when \code{dir} is not \code{NULL}.}
+\item{time.saved}{logical; if \code{TRUE}, the date saved is appended to
+\code{file.name}. Only applicable when \code{file.name} is not \code{NULL}.}
 }
 \value{
 An array of dimension \code{nrow(x)} by \code{reps} by
@@ -74,6 +88,10 @@ An array of dimension \code{nrow(x)} by \code{reps} by
   consensus clustering results for algorithms. The matrices have a row for
   each sample, and a column for each subsample. Each entry represents a class
   membership.
+
+  When "hdbscan" is part of \code{algorithms}, we do not include its clustering
+  array in the consensus result. Instead, we report two summary statistics
+  as attributes: the proportion of outliers and the number of clusters.
 }
 \description{
 Runs consensus clustering across subsamples of the data, clustering
@@ -83,10 +101,8 @@ algorithms, and cluster sizes.
 See examples for how to use custom algorithms and distance functions. The
 default clustering algorithms provided are:
 \itemize{
-  \item{"nmf": }{Nonnegative Matrix Factorization using Kullback-Leibler
-  Divergence}
-  \item{"nmfEucl": }{Nonnegative Matrix Factorization using Euclidean
-  distance}
+  \item{"nmf": }{Nonnegative Matrix Factorization (using Kullback-Leibler
+  Divergence or Euclidean distance; See Note for specifications.)}
   \item{"hc": }{Hierarchical Clustering}
   \item{"diana": }{DIvisive ANAlysis Clustering}
   \item{"km": }{K-Means Clustering}
@@ -96,12 +112,22 @@ default clustering algorithms provided are:
   \item{"gmm": }{Gaussian Mixture Model using Bayesian Information Criterion
   on EM algorithm}
   \item{"block": }{Biclustering using a latent block model}
+  \item{"som": }{Self-Organizing Map (SOM) with Hierarchical Clustering}
+  \item{"cmeans": }{Fuzzy C-Means Clustering}
+  \item{"hdbscan": }{Hierarchical Density-based Spatial Clustering of
+  Applications with Noise (HDBSCAN)}
 }
 
-The \code{nmf.method} defaults are "brunet" (Kullback-Leibler divergence) and
-"lee" (Euclidean distance).
-
-The progress bar increments for every unit of \code{reps}.
+The progress bar increments on every unit of \code{reps}.
+}
+\note{
+The \code{nmf.method} defaults are "brunet" (Kullback-Leibler
+  divergence) and "lee" (Euclidean distance). When "hdbscan" is chosen as an
+  algorithm to use, its results are excluded from the rest of the consensus
+  clusters. This is because there is no guarantee that the cluster assignment
+  will have every sample clustered; more often than not there will be noise
+  points or outliers. In addition, the number of distinct clusters may not
+  even be equal to \code{nk}.
 }
 \examples{
 data(hgsc)

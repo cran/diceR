@@ -6,10 +6,8 @@
 #' See examples for how to use custom algorithms and distance functions. The
 #' default clustering algorithms provided are:
 #' \itemize{
-#'   \item{"nmf": }{Nonnegative Matrix Factorization using Kullback-Leibler
-#'   Divergence}
-#'   \item{"nmfEucl": }{Nonnegative Matrix Factorization using Euclidean
-#'   distance}
+#'   \item{"nmf": }{Nonnegative Matrix Factorization (using Kullback-Leibler
+#'   Divergence or Euclidean distance; See Note for specifications.)}
 #'   \item{"hc": }{Hierarchical Clustering}
 #'   \item{"diana": }{DIvisive ANAlysis Clustering}
 #'   \item{"km": }{K-Means Clustering}
@@ -19,12 +17,21 @@
 #'   \item{"gmm": }{Gaussian Mixture Model using Bayesian Information Criterion
 #'   on EM algorithm}
 #'   \item{"block": }{Biclustering using a latent block model}
+#'   \item{"som": }{Self-Organizing Map (SOM) with Hierarchical Clustering}
+#'   \item{"cmeans": }{Fuzzy C-Means Clustering}
+#'   \item{"hdbscan": }{Hierarchical Density-based Spatial Clustering of
+#'   Applications with Noise (HDBSCAN)}
 #' }
 #'
-#' The \code{nmf.method} defaults are "brunet" (Kullback-Leibler divergence) and
-#' "lee" (Euclidean distance).
+#' The progress bar increments on every unit of \code{reps}.
 #'
-#' The progress bar increments for every unit of \code{reps}.
+#' @note The \code{nmf.method} defaults are "brunet" (Kullback-Leibler
+#'   divergence) and "lee" (Euclidean distance). When "hdbscan" is chosen as an
+#'   algorithm to use, its results are excluded from the rest of the consensus
+#'   clusters. This is because there is no guarantee that the cluster assignment
+#'   will have every sample clustered; more often than not there will be noise
+#'   points or outliers. In addition, the number of distinct clusters may not
+#'   even be equal to \code{nk}.
 #'
 #' @param data data matrix with rows as samples and columns as variables
 #' @param nk number of clusters (k) requested; can specify a single integer or a
@@ -34,11 +41,19 @@
 #' @param reps number of subsamples
 #' @param algorithms vector of clustering algorithms for performing consensus
 #'   clustering. Must be any number of the following: "nmf", "hc", "diana",
-#'   "km", "pam", "ap", "sc", "gmm", "block". A custom clustering algorithm can
-#'   be used.
+#'   "km", "pam", "ap", "sc", "gmm", "block", "som", "cmeans", "hdbscan". A
+#'   custom clustering algorithm can be used.
 #' @param nmf.method specify NMF-based algorithms to run. By default the
 #'   "brunet" and "lee" algorithms are called. See \code{\link[NMF]{nmf}} for
 #'   details.
+#' @param xdim x dimension of the SOM grid
+#' @param ydim y dimension of the SOM grid
+#' @param rlen the number of times the complete data set will be presented to
+#'   the SOM network.
+#' @param alpha SOM learning rate, a vector of two numbers indicating the amount
+#'   of change. Default is to decline linearly from 0.05 to 0.01 over
+#'   \code{rlen} updates. Not used for the batch algorithm.
+#' @param minPts minimum size of clusters for HDBSCAN. Default is 5.
 #' @param distance a vector of distance functions. Defaults to "euclidean".
 #'   Other options are given in \code{\link[stats]{dist}}. A custom distance
 #'   function can be used.
@@ -49,17 +64,21 @@
 #' @param seed.nmf random seed to use for NMF-based algorithms
 #' @param seed.data seed to use to ensure each algorithm operates on the same
 #'   set of subsamples
-#' @param save logical; if \code{TRUE}, the returned object will be saved at
-#'   each iteration as well as at the end.
-#' @param file.name file name of the written object
-#' @param time.saved logical; if \code{TRUE}, the date saved is appended to the
-#'   file name. Only applicable when \code{dir} is not \code{NULL}.
+#' @param file.name if not \code{NULL}, the returned array will be saved at each
+#'   iteration as well as at the end of the function call to an \code{rds}
+#'   object with \code{file.name} as the file name.
+#' @param time.saved logical; if \code{TRUE}, the date saved is appended to
+#'   \code{file.name}. Only applicable when \code{file.name} is not \code{NULL}.
 #' @return An array of dimension \code{nrow(x)} by \code{reps} by
 #'   \code{length(algorithms)} by \code{length(nk)}. Each cube of the array
 #'   represents a different k. Each slice of a cube is a matrix showing
 #'   consensus clustering results for algorithms. The matrices have a row for
 #'   each sample, and a column for each subsample. Each entry represents a class
 #'   membership.
+#'
+#'   When "hdbscan" is part of \code{algorithms}, we do not include its clustering
+#'   array in the consensus result. Instead, we report two summary statistics
+#'   as attributes: the proportion of outliers and the number of clusters.
 #' @author Derek Chiu, Aline Talhouk
 #' @importFrom mclust mclustBIC
 #' @export
@@ -85,267 +104,196 @@
 consensus_cluster <- function(data, nk = 2:4, p.item = 0.8, reps = 1000,
                               algorithms = NULL,
                               nmf.method = c("brunet", "lee"),
+                              xdim = NULL, ydim = NULL, rlen = 200,
+                              alpha = c(0.05, 0.01), minPts = 5,
                               distance = "euclidean",
                               prep.data = c("none", "full", "sampled"),
-                              scale = TRUE, type = c("conventional", "robust"),
+                              scale = TRUE,
+                              type = c("conventional", "robust", "tsne",
+                                       "largevis"),
                               min.var = 1, progress = TRUE,
-                              seed.nmf = 123456, seed.data = 1, save = FALSE,
-                              file.name = "CCOutput", time.saved = FALSE) {
-  # Check for invalid distance inputs
+                              seed.nmf = 123456, seed.data = 1,
+                              file.name = NULL, time.saved = FALSE) {
   prep.data <- match.arg(prep.data)
   if (prep.data == "full")
     data <- prepare_data(data, scale = scale, type = type, min.var = min.var)
-  nmf.arr <- other.arr <- dist.arr <- NULL
+  algorithms <- algorithms %||% ALG_NAMES  # Use all if none are specified
 
-  # Use all algorithms if none are specified
-  algorithms <- algorithms %||% c("nmf", "hc", "diana", "km", "pam", "ap", "sc",
-                                  "gmm", "block")
+  # Calculate total number of algorithms
+  algs <- dplyr::lst(NALG, DALG, OALG) %>%
+    purrr::map(~ algorithms[algorithms %in% .x])
+  lalg <- lengths(algs) * lengths(list(nmf.method, distance, 1))
 
-  # Store consensus dimensions for calculating progress bar increments/offsets
-  lnk <- length(nk)
-  lnmf <- ifelse("nmf" %in% algorithms, length(nmf.method), 0)
-  ldist <- sum(!algorithms %in% c("nmf", "ap", "sc", "gmm", "block")) *
-    length(distance)
-  lother <- sum(c("ap", "sc", "gmm", "block") %in% algorithms)
   if (progress) {
-    pb <- utils::txtProgressBar(max = lnk * (lnmf + lother + ldist) * reps,
-                                style = 3)
+    pb <- progress::progress_bar$new(
+      format = "Clustering Algorithm :num of :den: :alg (k = :k) [:bar] :percent eta: :eta",
+      total = length(nk) * sum(lalg) * reps,
+      clear = FALSE
+    )
   } else {
     pb <- NULL
   }
 
-  # Cluster NMF-based algorithms
-  if ("nmf" %in% algorithms) {
-    nmf.arr <- cluster_nmf(data, nk, p.item, reps, nmf.method,
-                           seed.nmf, seed.data, prep.data, scale, type, min.var,
-                           progress, pb)
-  }
+  # Argument lists: Common, NMF, Distance, Other
+  cargs <- dplyr::lst(data, nk, p.item, reps, seed.data, prep.data, scale, type,
+                      min.var, pb, lalg)
+  nargs <- dplyr::lst(algs = algs$NALG, nmf.method, seed.nmf)
+  dargs <- dplyr::lst(algs = algs$DALG, distance)
+  oargs <- dplyr::lst(algs = algs$OALG, xdim, ydim, rlen, alpha, minPts)
+  args <- purrr::map(list(nargs, dargs, oargs), ~ c(cargs, .))
 
-  # Cluster distance-based algorithms
-  dalgs <- algorithms[!algorithms %in% c("nmf", "ap", "sc", "gmm", "block")]
-  if (length(dalgs) > 0) {
-    dist.arr <- cluster_dist(data, nk, p.item, reps, dalgs, distance,
-                             seed.data, prep.data, scale, type, min.var,
-                             progress, pb, offset = lnk * lnmf * reps)
-  }
+  # Run cc on all algorithms, combine on 3rd dim, HDBSCAN manipulation
+  fun <- list(cc_nmf, cc_dist, cc_other)
+  arr_all <- purrr::pmap(list(fun, args), cc) %>%
+    abind::abind(along = 3) %>%
+    hdbscan_summarize(algorithms)
 
-  # Cluster other algorithms
-  oalgs <- algorithms[algorithms %in% c("ap", "sc", "gmm", "block")]
-  if (length(oalgs) > 0) {
-    other.arr <- cluster_other(data, nk, p.item, reps, oalgs,
-                               seed.data, prep.data, scale, type, min.var,
-                               progress, pb,
-                               offset = lnk * (lnmf + ldist) * reps)
-  }
-
-  # Combine on third dimension (algorithm) and (optionally) save
-  all.arr <- abind::abind(nmf.arr, dist.arr, other.arr, along = 3)
-  if (save) {
+  if (!is.null(file.name)) {
     if (time.saved) {
-      path <- paste0(file.name, "_",
-                     format(Sys.time(), "%Y-%m-%d_%H-%M-%S"), ".rds")
-    } else {
-      path <- paste0(file.name, ".rds")
+      file.name <- paste0(file.name, "_",
+                          format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
     }
-    saveRDS(all.arr, file = path)
+    saveRDS(arr_all, file = paste0(file.name, ".rds"))
   }
-  return(all.arr)
+  arr_all
+}
+
+#' If algs from each group exist, invoke respective cc fun, otherwise NULL
+#' @noRd
+cc <- function(fun, args) {
+  length(args$algs) %>% purrr::when(. > 0 ~ purrr::invoke(fun, args), ~ NULL)
 }
 
 #' Cluster NMF-based algorithms
 #' @noRd
-cluster_nmf <- function(data, nk, p.item, reps, nmf.method, seed.nmf, seed.data,
-                        prep.data, scale, type, min.var, progress, pb) {
-  # Transform to non-negative matrix by column-binding a negative replicate and
-  # then coercing all negatives to 0
-  x.nmf <- data %>%
-    cbind(-.) %>%
-    apply(2, function(d) ifelse(d < 0, 0, d))
+cc_nmf <- function(data, nk, p.item, reps, algs, nmf.method, seed.nmf,
+                   seed.data, prep.data, scale, type, min.var, pb, lalg) {
   n <- nrow(data)
-  n.new <- floor(n * p.item)
-  lnmf <- length(nmf.method)
-  lnk <- length(nk)
-  nmf.arr <- array(NA, c(n, reps, lnmf, lnk),
-                   dimnames = list(
-                     rownames(data),
-                     paste0("R", seq_len(reps)),
-                     paste0("NMF_", Hmisc::capitalize(nmf.method)),
-                     nk))
-  for (k in seq_len(lnk)) {
-    for (j in seq_len(lnmf)) {
+  alg <- paste(toupper(algs), Hmisc::capitalize(nmf.method), sep = "_")
+  arr_nmf <- init_array(data, reps, alg, nk)
+  x_nmf <- nmf_transform(data)
+
+  for (j in seq_along(nmf.method)) {
+    for (k in seq_along(nk)) {
       set.seed(seed.data)
       for (i in seq_len(reps)) {
-        ind.new <- sample(n, n.new, replace = FALSE)
-        # Transpose since input for NMF::nmf uses rows as vars, cols as samples
+        ind.new <- sample(n, floor(n * p.item))
         # In case the subsample has all-zero vars, remove them to speed up comp
-        x.nmf_samp <- x.nmf[ind.new, !(apply(x.nmf[ind.new, ], 2,
-                                             function(x) all(x == 0)))]
+        x <- x_nmf[ind.new, ] %>% magrittr::extract(colSums(.) != 0)
         if (prep.data == "sampled") {
-          x <- prepare_data(x.nmf_samp, scale = scale, type = type,
-                            min.var = min.var) %>%
-            cbind(-.) %>%
-            apply(2, function(d) ifelse(d < 0, 0, d))
-        } else if (prep.data %in% c("full", "none")) {
-          x <- x.nmf_samp
+          x <- x %>%
+            prepare_data(scale = scale, type = type, min.var = min.var) %>%
+            nmf_transform()
         }
-        nmf.arr[ind.new, i, j, k] <- NMF::predict(NMF::nmf(
-          t(x), rank = nk[k], method = nmf.method[j], seed = seed.nmf))
-        if (progress)
-          utils::setTxtProgressBar(pb,
-                                   (k - 1) * lnmf * reps + (j - 1) * reps + i)
+        if (!is.null(pb)) {
+          pb$tick(tokens = list(num = j, den = sum(lalg), alg = alg[j],
+                                k = nk[k]))
+        }
+        arr_nmf[ind.new, i, j, k] <- nmf(x, nk[k], nmf.method[j], seed.nmf)
       }
     }
   }
-  return(nmf.arr)
+  arr_nmf
 }
 
 #' Cluster algorithms with dissimilarity specification
 #' @noRd
-cluster_dist <- function(data, nk, p.item, reps, dalgs, distance, seed.data,
-                         prep.data, scale, type, min.var, progress, pb,
-                         offset) {
+cc_dist <- function(data, nk, p.item, reps, algs, distance, seed.data,
+                    prep.data, scale, type, min.var, pb, lalg) {
   n <- nrow(data)
-  n.new <- floor(n * p.item)
-  ld <- length(distance)
-  lalg <- length(dalgs)
-  ldist <- prod(lalg, ld)
-  lnk <- length(nk)
-  dist.arr <- array(NA, c(n, reps, ldist, lnk),
-                    dimnames = list(
-                      rownames(data),
-                      paste0("R", seq_len(reps)),
-                      apply(expand.grid(Hmisc::capitalize(distance),
-                                        toupper(dalgs)),
-                            1, function(x) paste0(x[2], "_", x[1])),
-                      nk))
-  for (k in seq_len(lnk)) {
-    for (j in seq_len(lalg)) {
-      for (d in seq_len(ld)) {
+  alg <- paste(rep(toupper(algs), each = length(distance)),
+               rep(Hmisc::capitalize(distance), length(algs)),
+               sep = "_")
+  arr_dist <- init_array(data, reps, alg, nk)
+
+  for (j in seq_along(algs)) {
+    for (k in seq_along(nk)) {
+      for (d in seq_along(distance)) {
         set.seed(seed.data)
         for (i in seq_len(reps)) {
-          # Find custom functions use get()
-          ind.new <- sample(n, n.new, replace = FALSE)
+          ind.new <- sample(n, floor(n * p.item))
+          x <- data[ind.new, ]
           if (prep.data == "sampled") {
-            x <- prepare_data(data[ind.new, ], scale = scale, type = type,
-                              min.var = min.var)
-          } else if (prep.data %in% c("full", "none")) {
-            x <- data[ind.new, ]
+            x <- prepare_data(x, scale = scale, type = type, min.var = min.var)
           }
-          dists <- distances(x, distance[d])
-          dist.arr[ind.new, i, (j - 1) * ld + d, k] <- get(dalgs[j])(dists[[1]],
-                                                                     nk[k])
-          if (progress)
-            utils::setTxtProgressBar(pb, (k - 1) * lalg * ld * reps +
-                                       (j - 1) * ld * reps +
-                                       (d - 1) * reps + i + offset)
+          dists <- cdist(x, distance[d])
+          a <- (j - 1) * length(distance) + d
+          if (!is.null(pb)) {
+            pb$tick(tokens = list(num = j + lalg["NALG"], den = sum(lalg),
+                                  alg = alg[a], k = nk[k]))
+          }
+          arr_dist[ind.new, i, a, k] <- get(algs[j])(dists, nk[k]) # custom
         }
       }
     }
   }
-  return(dist.arr)
+  arr_dist
 }
 
 #' Cluster other algorithms
 #' @noRd
-cluster_other <- function(data, nk, p.item, reps, oalgs, seed.data,
-                          prep.data, scale, type, min.var, progress, pb,
-                          offset) {
+cc_other <- function(data, nk, p.item, reps, algs, xdim, ydim, rlen, alpha,
+                     minPts, seed.data, prep.data, scale, type, min.var, pb,
+                     lalg) {
   n <- nrow(data)
-  n.new <- floor(n * p.item)
-  lalg <- length(oalgs)
-  lnk <- length(nk)
-  other.arr <- array(NA, c(n, reps, lalg, lnk),
-                     dimnames = list(rownames(data),
-                                     paste0("R", seq_len(reps)),
-                                     toupper(oalgs),
-                                     nk))
-  for (k in seq_len(lnk)) {
-    for (j in seq_len(lalg)) {
+  alg <- toupper(algs)
+  arr_other <- init_array(data, reps, alg, nk)
+
+  for (j in seq_along(algs)) {
+    for (k in seq_along(nk)) {
       set.seed(seed.data)
       for (i in seq_len(reps)) {
-        ind.new <- sample(n, n.new, replace = FALSE)
+        ind.new <- sample(n, floor(n * p.item))
+        x <- data[ind.new, ]
         if (prep.data == "sampled") {
-          x <- prepare_data(data[ind.new, ], scale = scale, type = type,
-                            min.var = min.var)
-        } else if (prep.data %in% c("full", "none")) {
-          x <- data[ind.new, ]
+          x <- prepare_data(x, scale = scale, type = type, min.var = min.var)
         }
-        other.arr[ind.new, i, j, k] <-
-          switch(oalgs[j],
-                 ap = {
-                   ap.cl <- stats::setNames(dplyr::dense_rank(suppressWarnings(
-                     apcluster::apclusterK(apcluster::negDistMat, x,
-                                           nk[k], verbose = FALSE)@idx)),
-                     rownames(data[ind.new, ]))
-                   if (length(ap.cl) == 0) NA else ap.cl
-                 },
-                 sc = stats::setNames(kernlab::specc(as.matrix(x), nk[k],
-                                                     kernel = "rbfdot")@.Data,
-                                      rownames(data[ind.new, ])),
-                 gmm = mclust::Mclust(x, nk[k], verbose = FALSE)$classification,
-                 block = {
-                   blk.cl <- tryCatch(blockcluster::cocluster(
-                     x, "continuous",
-                     nbcocluster = c(nk[k], nk[k]))@rowclass + 1,
-                     error = function(e) return(NA))
-                   if (length(blk.cl) == 0) NA else blk.cl
-                 })
-        if (progress)
-          utils::setTxtProgressBar(pb, (k - 1) * lalg * reps +
-                                     (j - 1) * reps + i + offset)
+        if (!is.null(pb)) {
+          pb$tick(tokens = list(num = j + sum(lalg[c("NALG", "DALG")]),
+                                den = sum(lalg), alg = alg[j], k = nk[k]))
+        }
+        arr_other[ind.new, i, j, k] <-
+          switch(algs[j],
+                 ap = ap(x, nk[k]),
+                 sc = sc(x, nk[k]),
+                 gmm = gmm(x, nk[k]),
+                 block = block(x, nk[k]),
+                 som = som(x, nk[k], xdim, ydim, rlen, alpha),
+                 cmeans = cmeans(x, nk[k]),
+                 hdbscan = hdbscan(x, minPts)
+          )
       }
     }
   }
-  return(other.arr)
+  arr_other
 }
 
-#' Return a list of distance matrices
+#' Initialize array to store consensus clustering results
+#' @noRd
+init_array <- function(data, r, a, k) {
+  rn <- rownames(data) %||% seq_len(nrow(data))
+  dn <- list(rn, paste0("R", seq_len(r)), a, k)
+  array(NA_integer_, dim = purrr::map_int(dn, length), dimnames = dn)
+}
+
+#' Return a clustering distance matrix object
 #' @param x data matrix
-#' @param dist a character vector of distance methods taken from stats::dist, or
+#' @param dist a character string of distance methods taken from stats::dist, or
 #'   "spearman", or a custom distance function in the current environment
 #' @noRd
-distances <- function(x, dist) {
+cdist <- function(x, dist) {
   # Change partial matching distance methods from stats::dist to full names
   M <- c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski")
   dist <- ifelse(dist %pin% M, M[pmatch(dist, M)], dist)
 
-  # Check if spearman distance is used (starts with string)
-  sp.idx <- purrr::map_lgl(paste0("^", dist), grepl, "spearman")
-  if (any(sp.idx)) {
-    spear <- stats::setNames(list(spearman_dist(x)), "spearman")
-    d <- dist[!sp.idx]
-  } else {
-    spear <- NULL
-    d <- dist
-  }
+  # If spearman is specified, use spearman_dist()
+  if (dist %pin% "spearman") return(spearman_dist(x))
 
-  # If only spearman requested
-  if (length(d) == 0) {
-    return(spear)
-  } else {
-    # Identify custom distance functions from those found in stats::dist
-    check <- d %>%
-      purrr::map(~ try(stats::dist(x = x, method = .x), silent = TRUE)) %>%
-      purrr::set_names(d)
-    is.error <- purrr::map_lgl(check, inherits, "try-error")
-    succeeded <- which(!is.error)
-    failed <- which(is.error)
+  # Identify custom distance functions from those found in stats::dist
+  d <- try(stats::dist(x = x, method = dist), silent = TRUE)
 
-    # Search for custom function in parent environments
-    if (length(failed)) {
-      custom <- check[failed] %>%
-        names() %>%
-        purrr::map(~ get(.x)(x)) %>%
-        purrr::set_names(names(failed))
-    } else {
-      custom <- NULL
-    }
-
-    # Combine distances into list and return in same order as dist argument
-    dlist <- c(spear, check[succeeded], custom) %>%
-      magrittr::extract(pmatch(dist, names(.)))
-    return(dlist)
-  }
+  # Run custom function in parent environments if not found
+  if (inherits(d, "try-error")) get(dist)(x) else d
 }
 
 #' Calculate pairwise Spearman correlational distances using
@@ -355,31 +303,20 @@ distances <- function(x, dist) {
 #'
 #' @noRd
 spearman_dist <- function(x) {
-  rvec <- stats::cor(t(x), method = "spearman") %>%
+  x %>%
+    t() %>%
+    stats::cor(method = "spearman") %>%
     abs() %>%
     magrittr::subtract(1, .) %>%
-    magrittr::extract(lower.tri(.))
-  attributes(rvec) <- list(Size = nrow(x), Labels = rownames(x), Diag = FALSE,
-                           Upper = FALSE, methods = "spearman", class = "dist")
-  return(rvec)
-}
-
-#' @noRd
-hc <- function(d, k, method = "average") {
-  return(as.integer(stats::cutree(stats::hclust(d, method = method), k)))
-}
-
-#' @noRd
-diana <- function(d, k) {
-  return(as.integer(stats::cutree(cluster::diana(d, diss = TRUE), k)))
-}
-
-#' @noRd
-km <- function(d, k) {
-  return(as.integer(stats::kmeans(d, k)$cluster))
-}
-
-#' @noRd
-pam <- function(d, k) {
-  return(as.integer(cluster::pam(d, k, cluster.only = TRUE)))
+    magrittr::extract(lower.tri(.)) %>%
+    `attributes<-`(
+      list(
+        Size = nrow(x),
+        Labels = rownames(x),
+        Diag = FALSE,
+        Upper = FALSE,
+        methods = "spearman",
+        class = "dist"
+      )
+    )
 }
