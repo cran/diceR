@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 library(diceR)
 library(dplyr)
 library(ggplot2)
-library(knitr)
+library(pander)
 data(hgsc)
 hgsc <- hgsc[1:100, 1:50]
 
@@ -28,9 +28,13 @@ hgsc <- hgsc[1:100, 1:50]
 CC <- consensus_cluster(hgsc, nk = 3:4, p.item = 0.8, reps = 5,
                         algorithms = c("hc", "pam", "diana"))
 
-## ----consensus_cluster_biclust-------------------------------------------
-str(CC)
-kable(head(CC[, , "DIANA_Euclidean", "3"]))
+## ----consensus_cluster_str-----------------------------------------------
+co <- capture.output(str(CC))
+strwrap(co, width = 80)
+
+## ----consensus_cluster_table, echo=FALSE, results='asis'-----------------
+pandoc.table(head(CC[, , "DIANA_Euclidean", "3"]),
+             caption = "Cluster Assignments for DIANA, k = 3")
 
 ## ----impute_knn----------------------------------------------------------
 CC <- apply(CC, 2:4, impute_knn, data = hgsc, seed = 1)
@@ -52,21 +56,24 @@ ccomb_class <- consensus_combine(CC, element = "class")
 
 ## ----consensus_combine_str-----------------------------------------------
 str(ccomb_matrix, max.level = 2)
-kable(head(ccomb_class$`4`))
 
-## ----consensus_combine_2, results='hide'---------------------------------
+## ----consensus_combine_table, echo=FALSE, results='asis'-----------------
+pandoc.table(head(ccomb_class$`4`), caption = "Consensus Classes")
+
+## ----consensus_combine_2_str, results='hide'-----------------------------
 CC2 <- consensus_cluster(hgsc, nk = 3:4, p.item = 0.8, reps = 5,
                          algorithms = "km")
 ccomb_class2 <- consensus_combine(CC, CC2, element = "class")
 
-## ----consensus_combine_2_str---------------------------------------------
-kable(head(ccomb_class2$`4`))
+## ----consensus_combine_2_table, echo=FALSE, results='asis'---------------
+pandoc.table(head(ccomb_class2$`4`), caption = "Consensus Classes with KM added")
 
 ## ----consensus_evaluate, results='hide'----------------------------------
 ccomp <- consensus_evaluate(hgsc, CC, CC2, plot = FALSE)
 
-## ----consensus_evaluate_kable--------------------------------------------
-kable(ccomp$internal)
+## ----consensus_evaluate_table, echo=FALSE, results='asis'----------------
+pandoc.table(ccomp$ii$`4`, split.tables = 100,
+             caption = "Internal Indices for k = 4")
 
 ## ----consensus_evaluate_trim, results='hide'-----------------------------
 ctrim <- consensus_evaluate(hgsc, CC, CC2, trim = TRUE, reweigh = FALSE, n = 2)
@@ -78,5 +85,6 @@ str(ctrim, max.level = 2)
 set.seed(1)
 pam_4 <- ccomb_class2$`4`[, "PAM_Euclidean"]
 sig_obj <- sigclust(hgsc, k = 4, nsim = 100, labflag = 0, label = pam_4)
-str(sig_obj)
+co <- capture.output(str(sig_obj))
+strwrap(co, width = 80)
 

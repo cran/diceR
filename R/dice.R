@@ -14,6 +14,9 @@
 #' @param evaluate logical; if \code{TRUE} (default), validity indices are
 #'   returned. Internal validity indices are always computed. If \code{ref.cl}
 #'   is not \code{NULL}, then external validity indices will also be computed.
+#' @param plot logical; if \code{TRUE}, \code{graph_all} is called and a summary
+#'   evaluation heatmap of ranked algorithms vs. internal validity indices is
+#'   plotted as well.
 #' @inheritParams consensus_cluster
 #' @inheritParams consensus_evaluate
 #' @inheritParams LCE
@@ -62,16 +65,20 @@ dice <- function(data, nk, reps = 10, algorithms = NULL, k.method = NULL,
   Eknn <- apply(E, 2:4, impute_knn, data = data, seed = seed)
 
   # Select k and new (trimmed and reweighed) data
+  if (progress)
+    cli::cat_line("Selecting k and imputing non-clustered cases")
   eval.obj <- consensus_evaluate(data = data, Eknn, ref.cl = ref.cl,
                                  k.method = k.method, trim = trim,
                                  reweigh = reweigh, n = n)
-  Eknn <- eval.obj$trim$data.new
+  Eknn <- eval.obj$trim.obj$E.new
   k <- eval.obj$k
 
   # Impute remaining missing cases
   Ecomp <- purrr::map2(Eknn, k, impute_missing, data = data)
 
   # Consensus functions
+  if (progress)
+    cli::cat_line("Computing consensus functions")
   Final <- purrr::map2(Ecomp, k, ~ {
     vapply(cons.funs, function(x) {
       switch(x,
@@ -79,10 +86,9 @@ dice <- function(data, nk, reps = 10, algorithms = NULL, k.method = NULL,
              majority = majority_voting(.x),
              CSPA = CSPA(E, .y),
              LCE = LCE(drop(.x), k = .y, sim.mat = sim.mat)
-      )
-    }, double(nrow(.x))) %>%
-      apply(2, as.integer)
-    })
+      ) %>% as.integer()
+    }, integer(nrow(.x)))
+  })
 
   #  If more than one k, need to prepend "k=" labels
   if (length(Ecomp) > 1) {
@@ -103,10 +109,12 @@ dice <- function(data, nk, reps = 10, algorithms = NULL, k.method = NULL,
 
   # Return evaluation output including consensus function results
   if (evaluate) {
+    if (progress)
+      cli::cat_line("Evaluating output with consensus function results")
     eval.obj2 <- consensus_evaluate(data, E, cons.cl = clusters,
                                     ref.cl = ref.cl, plot = plot)
     indices <- c(k = list(eval.obj[["k"]]), eval.obj2[2:4],
-                 trim = list(eval.obj[["trim"]]))
+                 trim = list(eval.obj[["trim.obj"]]))
   } else {
     indices <- NULL
   }
@@ -116,8 +124,15 @@ dice <- function(data, nk, reps = 10, algorithms = NULL, k.method = NULL,
     clusters <- cbind(Reference = ref.cl, clusters)
   }
 
+  # Algorithm vs internal index heatmap
+  if (plot) {
+    algii_heatmap(data, k, E, clusters, ref.cl)
+  }
+
   # Remove list structure
   Eknn <- abind::abind(Eknn, along = 3)
   Ecomp <- abind::abind(Ecomp, along = 3)
+  if (progress)
+    cli::cat_line("Diverse Cluster Ensemble Completed")
   dplyr::lst(E, Eknn, Ecomp, clusters, indices)
 }

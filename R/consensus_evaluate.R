@@ -36,18 +36,17 @@
 #'   the one giving the largest mean PAC across algorithms}
 #'   \item{pac}{a data frame showing the PAC for each combination of algorithm
 #'   and cluster size}
-#'   \item{internal}{a list of data frames for all k showing internal evaluation
+#'   \item{ii}{a list of data frames for all k showing internal evaluation
 #'   indices}
-#'   \item{external}{a data frame showing external evaluation indices for
-#'   \code{k}}
-#'   \item{trim}{A list with 4 elements}
+#'   \item{ei}{a data frame showing external evaluation indices for \code{k}}
+#'   \item{trim.obj}{A list with 4 elements}
 #'   \itemize{
 #'     \item{\code{alg.keep} }{algorithms kept}
 #'     \item{\code{alg.remove} }{algorithms removed}
-#'     \item{\code{rank.agg} }{a matrix of ranked algorithms for every internal
+#'     \item{\code{rank.matrix} }{a matrix of ranked algorithms for every internal
 #'     evaluation index}
 #'     \item{\code{top.list} }{final order of ranked algorithms}
-#'     \item{\code{data.new} }{A new version of a \code{consensus_cluster} data
+#'     \item{\code{E.new} }{A new version of a \code{consensus_cluster} data
 #'     object}
 #'   }
 #' @export
@@ -55,7 +54,7 @@
 #' # Consensus clustering for multiple algorithms
 #' set.seed(911)
 #' x <- matrix(rnorm(500), ncol = 10)
-#' CC <- consensus_cluster(x, nk = 3:4, reps = 10, algorithms = c("ap", "gmm"),
+#' CC <- consensus_cluster(x, nk = 3:4, reps = 10, algorithms = c("ap", "km"),
 #' progress = FALSE)
 #'
 #' # Evaluate algorithms on internal/external indices and trim algorithms:
@@ -73,35 +72,15 @@ consensus_evaluate <- function(data, ..., cons.cl = NULL, ref.cl = NULL,
 
   # Extract classes and matrices separately
   E <- abind::abind(list(...), along = 3)
-  cl.mat <- consensus_combine(E, element = "class")
+  cl.mat <- consensus_combine(E, element = "class") %>%
+    purrr::map(as.data.frame)
   cons.mat <- consensus_combine(E, element = "matrix")
 
-  # Calculate PAC
+  # Calculate PAC and choose k
   pac <- cons.mat %>%
     purrr::modify_depth(2, PAC) %>%
     purrr::map_df(data.frame, .id = "k")
-
-  # If reference given, k is number of distinct classes
-  if (!is.null(ref.cl)) {
-    k <- dplyr::n_distinct(ref.cl)
-    # Otherwise k is chosen using the following methods
-  } else if (is.null(k.method)) {
-    k <- pac %>%
-      magrittr::use_series("k") %>%
-      magrittr::extract(apply(pac[, -1, drop = FALSE], 2, which.min) %>%
-                          table() %>%
-                          magrittr::extract(magrittr::is_in(., max(.))) %>%
-                          names() %>%
-                          as.numeric()) %>%
-      as.integer() %>%
-      min()
-  } else if (length(cons.mat) == 1 || k.method == "all") {
-    k <- as.integer(dimnames(E)[[4]])
-  } else if (length(k.method) == 1 & is.numeric(k.method)) {
-    k <- k.method
-  } else {
-    stop("Invalid input. Check documentation for possible options.")
-  }
+  k <- choose_k(ref.cl, k.method, pac)
 
   # If matrix of cluster assignments from cons.funs given, cbind to cl.mat
   an <- dimnames(E)[[3]]
@@ -112,73 +91,44 @@ consensus_evaluate <- function(data, ..., cons.cl = NULL, ref.cl = NULL,
   }
 
   # Internal indices
-  ind.int <- purrr::map(cl.mat, ~ {
-    x <- as.matrix(data)
-    data.frame(
-      Algorithms = an,
-      apply(.x, 2, function(cl)
-        clusterCrit::intCriteria(
-          traj = x, part = cl,
-          crit = c("C_index", "Calinski_Harabasz", "Davies_Bouldin", "Dunn",
-                   "McClain_Rao", "PBM", "SD_Dis", "Ray_Turi", "Tau", "Gamma",
-                   "G_plus", "Silhouette", "S_Dbw")) %>%
-          unlist()) %>% t(),
-      Compactness = apply(.x, 2, compactness, data = x),
-      Connectivity = apply(.x, 2, function(cl)
-        clValid::connectivity(Data = x, clusters = cl))) %>%
-      dplyr::mutate_all(dplyr::funs(structure(., names = an)))
-  })
+  ii <- cl.mat %>% purrr::map(ivi_table, data = data)
 
-  # Graph all plotting functions
-  if (plot) {
-    graph_all(E)
-  }
+  # External indices if reference is given
+  ei <- ref.cl %>%
+    purrr::when(
+      !is.null(.) ~ cl.mat %>%
+        magrittr::extract(match(k, names(.))) %>% # for chosen k only
+        purrr::map(evi_table, ref.cl = ref.cl),
+      TRUE ~ NULL
+    )
 
-  # Only calculate external indices if a reference is given
-  if (!is.null(ref.cl)) {
-    mat.ext <- cl.mat %>%
-      magrittr::extract(match(k, names(.)))
-    ind.ext <- purrr::map(mat.ext, ~ data.frame(
-      Algorithms = an,
-      apply(.x, 2, function(cl)
-        clusterCrit::extCriteria(
-          part1 = cl, part2 = ref.cl,
-          crit = c("Hubert", "Jaccard", "McNemar", "Precision", "Rand",
-                   "Recall")) %>%
-          unlist()) %>% t(),
-      NMI = apply(.x, 2, ev_nmi, ref.lab = ref.cl)) %>%
-        cbind(t(apply(.x, 2, ev_confmat, ref.lab = ref.cl))) %>%
-        dplyr::mutate_all(dplyr::funs(structure(., names = an))))
-  } else {
-    ind.ext <- NULL
-  }
-
-  # Only trim if specified and more than one algorithm
+  # Only trim if more than one algorithm and trim is specified
   if (dim(E)[3] > 1 & trim) {
-    trim.obj <- purrr::map(k, ~ consensus_trim(E = E, ii = ind.int, k = .x,
-                                               k.method = k.method,
-                                               reweigh = reweigh, n = n)) %>%
+    trim.obj <- purrr::map(k, consensus_trim, E = E, ii = ii,
+                           k.method = k.method, reweigh = reweigh, n = n) %>%
       purrr::transpose() %>%
-      purrr::map_at(c("alg.keep", "alg.remove"), ~ unlist(unique(.x)))
+      purrr::map_at(c("alg.keep", "alg.remove"),
+                    ~ unlist(unique(.x)))
   } else {
     trim.obj <- list(alg.keep = an,
                      alg.remove = character(0),
-                     rank.agg = list(NULL),
+                     rank.matrix = list(NULL),
                      top.list = list(NULL),
-                     data.new = list(E))
+                     E.new = list(E))
   }
 
-  # Reorder ind.int (and ind.ext if not NULL) by top.list order if trimmed
+  # Reorder ii (and ei if not NULL) by top.list order if trimmed
   if (all(purrr::map_lgl(trim.obj$top.list, ~ !is.null(.x)))) {
-    ind.int <- purrr::map2(ind.int, trim.obj$top.list,
-                           ~ dplyr::arrange(.x, match(.y, Algorithms)))
-    if (!is.null(ind.ext))
-      ind.ext <- purrr::map2(ind.ext, trim.obj$top.list,
-                             ~ dplyr::arrange(.x, match(.y, Algorithms)))
+    ii <- purrr::map2(ii, trim.obj$top.list,
+                      ~ dplyr::arrange(.x, match(.y, Algorithms)))
+    if (!is.null(ei))
+      ei <- purrr::map2(ei, trim.obj$top.list,
+                        ~ dplyr::arrange(.x, match(.y, Algorithms)))
   }
 
-  return(list(k = k, pac = pac, internal = ind.int, external = ind.ext,
-              trim = trim.obj))
+  if (plot) graph_all(E) # Graph all plotting functions
+
+  dplyr::lst(k, pac, ii, ei, trim.obj)
 }
 
 #' @param E consensus object from \code{consensus_evaluate}
@@ -186,89 +136,175 @@ consensus_evaluate <- function(data, ..., cons.cl = NULL, ref.cl = NULL,
 #' @param k chosen value(s) of k from \code{consensus_evaluate}
 #' @noRd
 consensus_trim <- function(E, ii, k, k.method, reweigh, n) {
+  # Extract ii only for chosen k
   k <- as.character(k)
-  zk <- ii[[k]]
-  alg.all <- dimnames(E)[[3]]
+  ii <- ii[[k]]
+  alg.all <- as.character(ii$Algorithms)
 
-  # Separate algorithms into those from clusterCrit (main), and (others)
-  z.main <- zk %>%
-    magrittr::extract(!names(.) %in% c("Algorithms", "Compactness",
-                                       "Connectivity") &
-              purrr::map_lgl(., ~ all(!is.nan(.x))))
-  z.other <- zk %>%
-    magrittr::extract(c("Compactness", "Connectivity"))
+  # Rank algorithms on internal indices, store rank matrix and top alg list
+  rank.obj <- consensus_rank(ii, n)
+  rank.matrix <- rank.obj$rank.matrix
+  top.list <- rank.obj$top.list
 
-  # Which algorithm is the best for each index?
-  bests <- purrr::map2_int(z.main, names(z.main), clusterCrit::bestCriterion)
-  max.bests <- z.main %>%
-    magrittr::extract(purrr::map_int(., which.max) == bests) %>%
-    magrittr::multiply_by(-1)
-  min.bests <- z.main %>%
-    magrittr::extract(purrr::map_int(., which.min) == bests) %>%
-    cbind(z.other)
-
-  # Determine trimmed ensemble using rank aggregation, only if there are more
-  # algorithms than we want to keep
-  if (length(alg.all) <= n) {
-    rank.agg <- NULL
-    top.list <- NULL
-    alg.keep <- alg.all
-  } else {
-    rank.agg <- cbind(max.bests, min.bests) %>%
-      scale(center = FALSE, scale = TRUE) %>%
-      as.data.frame() %>%
-      purrr::map_df(~ alg.all[order(.x, sample(length(.x)))]) %>%
-      t()
-    top.list <- rank.agg %>%
-      RankAggreg::RankAggreg(., ncol(.), method = "GA", verbose = FALSE) %>%
-      magrittr::use_series("top.list")
-    alg.keep <- top.list[seq_len(n)]
-  }
+  # Algorithms to keep and remove based on top-ranked list
+  alg.keep <- top.list %>% purrr::when(is.null(.) ~ alg.all,
+                                       TRUE ~ .[seq_len(n)])
   alg.remove <- as.character(alg.all[!(alg.all %in% alg.keep)])
-  E.trim <- E[, , alg.keep, k, drop = FALSE]
+  E.new <- E[, , alg.keep, k, drop = FALSE]
 
   # Reweigh only if specified, more than 1 algorithm is kept, trimming done
   if (reweigh && length(alg.keep) > 1 && !is.null(top.list)) {
-
-    # Filter after knowing which to keep
-    ak <- match(alg.keep, alg.all)
-    max.bests <- max.bests[ak, ]
-    min.bests <- z.main %>%
-      magrittr::extract(ak, purrr::map_int(., which.min) == bests) %>%
-      purrr::map_df(~ sum(.x) - .x)
-
-    # Create multiples of each algorithm proportion to weight
-    # Divide multiples by greatest common divisor to minimize number of copies
-    multiples <- cbind(as.matrix(max.bests), as.matrix(min.bests)) %>%
-      prop.table(2) %>%
-      rowMeans() %>%
-      magrittr::multiply_by(100) %>%
-      round(0) %>%
-      magrittr::divide_by(Reduce(`gcd`, .)) %>%
-      purrr::set_names(alg.keep)
-
-    # Generate multiples for each algorithm, adding back dimnames metadata
-    E.trim <- purrr::array_branch(E.trim, c(3, 4)) %>%
-      purrr::map2(., multiples, ~ rep(list(.x), .y)) %>%
-      purrr::map(abind::abind, along = 3) %>%
-      abind::abind(along = 3) %>%
-      abind::abind(along = 4)
-    dimnames(E.trim) <-
-      list(NULL,
-           dimnames(E.trim)[[2]],
-           purrr::map2(names(multiples), multiples, rep) %>%
-             purrr::flatten_chr(),
-           k)
+    E.new <- consensus_reweigh(E.new, rank.obj, alg.keep, alg.all)
   }
 
   # If k.method is to select "all", need to add suffixes to algorithms
   if (!is.null(k.method) && k.method == "all") {
-    alg.keep <- paste0(alg.keep, " k=", k)
-    if (length(alg.remove) > 0) alg.remove <- paste0(alg.remove, " k=", k)
-    dimnames(E.trim)[[3]] <- paste0(dimnames(E.trim)[[3]], " k=", k)
+    alg.keep <- paste_k(alg.keep, k)
+    alg.remove <- alg.remove %>%
+      purrr::when(length(.) > 0 ~ paste_k(., k), TRUE ~ .)
+    dimnames(E.new)[[3]] <- paste_k(dimnames(E.new)[[3]], k)
   }
-  data.new <- E.trim
-  dplyr::lst(alg.keep, alg.remove, rank.agg, top.list, data.new)
+  dplyr::lst(alg.keep, alg.remove, rank.matrix, top.list, E.new)
+}
+
+#' Rank based on internal validity indices
+#' @noRd
+consensus_rank <- function(ii, n) {
+  # Extract internal indices from clusterCrit and remove NaN idx
+  ii.cc <- ii %>%
+    magrittr::extract(
+      !names(.) %in% c("Algorithms", "Compactness", "Connectivity") &
+        purrr::map_lgl(., ~ all(!is.nan(.x)))
+    )
+
+  # Which algorithm is the best for each index?
+  bests <- purrr::imap_int(ii.cc, clusterCrit::bestCriterion)
+  max.bests <- ii.cc %>%
+    magrittr::extract(purrr::map_int(., which.max) == bests) %>%
+    magrittr::multiply_by(-1)
+  min.bests <- ii.cc %>%
+    magrittr::extract(purrr::map_int(., which.min) == bests) %>%
+    cbind(ii[c("Compactness", "Connectivity")]) # these two need to be minimized
+
+  # Determine trimmed ensemble using rank aggregation
+  if (nrow(ii) <= n) {
+    rank.matrix <- top.list <- NULL
+  } else {
+    rank.matrix <- cbind(max.bests, min.bests) %>%
+      scale(center = FALSE, scale = TRUE) %>%
+      as.data.frame() %>%
+      purrr::map_df(~ ii$Algorithms[order(.x, sample(length(.x)))]) %>%
+      t()
+    top.list <- RankAggreg::RankAggreg(rank.matrix, ncol(rank.matrix),
+                                       method = "GA", verbose = FALSE)$top.list
+  }
+  dplyr::lst(max.bests, min.bests, rank.matrix, top.list)
+}
+
+#' Reweigh the algorithms in the ensemble if some were trimmed out
+#' @noRd
+consensus_reweigh <- function(E.new, rank.obj, alg.keep, alg.all) {
+  # Create multiples of each algorithm proportion to weight
+  multiples <- rank.obj %>%
+    magrittr::extract(c("max.bests", "min.bests")) %>%
+    dplyr::bind_cols() %>% # Recombine internal validity indices
+    magrittr::extract(match(alg.keep, alg.all), ) %>% # Extract algs to keep
+    as.matrix() %>% # Cannot calculate proportions on data.frame
+    prop.table(2) %>% # Proportion for each index
+    rowMeans() %>% # Average proportion across indices
+    magrittr::multiply_by(100) %>% # Percentage
+    round(0) %>% # Round to closest whole number
+    magrittr::divide_by(Reduce(`gcd`, .)) %>% # Divide by gcd to minimize copies
+    purrr::set_names(alg.keep) # reassign names of algs to keep
+
+  # Generate multiples for each algorithm, updating dimnames 3rd dimension
+  E.new %>%
+    purrr::array_branch(c(3, 4)) %>%
+    purrr::map2(multiples, ~ rep(list(.x), .y)) %>%
+    purrr::map(abind::abind, along = 3) %>%
+    abind::abind(along = 3) %>%
+    abind::abind(along = 4) %>%
+    `dimnames<-`(append(dimnames(E.new)[-3],
+                        list(purrr::flatten_chr(
+                          purrr::imap(multiples, ~ rep(.y, .x))
+                        )),
+                        2))
+}
+
+#' Table of internal validity indices for each algorithm
+#' @param cl.df data frame of cluster assignments for each algorithm
+#' @param data data frame with rows as samples and columns as variables
+#' @noRd
+ivi_table <- function(cl.df, data) {
+  data.frame(
+    Algorithms = colnames(cl.df),
+    cl.df %>% purrr::map_df(
+      clusterCrit::intCriteria,
+      traj = as.matrix(data),
+      crit = c("Calinski_Harabasz", "Dunn", "PBM", "Tau", "Gamma", "C_index",
+               "Davies_Bouldin", "McClain_Rao", "SD_Dis", "Ray_Turi", "G_plus",
+               "Silhouette", "S_Dbw")),
+    Compactness = cl.df %>% purrr::map_dbl(compactness, data = data),
+    Connectivity = cl.df %>% purrr::map_dbl(
+      ~ clValid::connectivity(Data = data, clusters = .))
+  ) %>%
+    dplyr::mutate_all(dplyr::funs(structure(., names = colnames(cl.df))))
+}
+
+#' Table of external validity indices for each algorithm
+#' @param cl.df data frame of cluster assignments for each algorithm
+#' @param ref.cl reference class
+#' @noRd
+evi_table <- function(cl.df, ref.cl) {
+  data.frame(
+    Algorithms = colnames(cl.df),
+    cl.df %>% purrr::map_df(
+      clusterCrit::extCriteria,
+      part2 = ref.cl,
+      crit = c("Hubert", "Jaccard", "McNemar", "Precision", "Rand", "Recall")
+    ),
+    NMI = cl.df %>% purrr::map_dbl(ev_nmi, ref.lab = ref.cl)
+  ) %>%
+    cbind(cl.df %>%
+            purrr::map(ev_confmat, ref.lab = ref.cl) %>%
+            do.call(rbind, .)) %>%
+    dplyr::mutate_all(dplyr::funs(structure(., names = colnames(cl.df))))
+}
+
+#' Choose k using PAC
+#' @noRd
+choose_k <- function(ref.cl, k.method, pac) {
+  # If reference given, k is number of distinct classes
+  if (!is.null(ref.cl)) {
+    k <- dplyr::n_distinct(ref.cl)
+    # Otherwise k is chosen using the following methods
+  } else if (is.null(k.method)) {
+    k <- pac %>%
+      magrittr::use_series("k") %>%
+      magrittr::extract(pac[, -1, drop = FALSE] %>%
+                          apply(2, which.min) %>%
+                          unlist() %>%
+                          table() %>%
+                          magrittr::extract(magrittr::is_in(., max(.))) %>%
+                          names() %>%
+                          as.numeric()) %>%
+      as.integer() %>%
+      min()
+  } else if (nrow(pac) == 1 || k.method == "all") {
+    k <- pac$k
+  } else if (purrr::is_scalar_integer(k.method) ||
+             purrr::is_scalar_double(k.method)) {
+    k <- k.method
+  } else {
+    stop("Invalid input. Check documentation for possible options.")
+  }
+  as.integer(k)
+}
+
+#' Add cluster size suffix to algorithms when k.method == "all"
+#' @noRd
+paste_k <- function(a, k) {
+  paste0(a, " k=", k)
 }
 
 #' Recursively find the greater common divisor of two numbers

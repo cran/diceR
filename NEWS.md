@@ -1,3 +1,17 @@
+# diceR 0.3.0
+
+* Updated object output names in `consensus_evaluate()`
+
+* Fix unit test in `test-dice.R` for R-devel
+
+* Add internal function: ranked algorithms vs internal validity indices heatmap graph
+
+* Fix bugs in `graph_cdf()`, `graph_tracking()` when only one k selected
+
+* Progress messages in `dice()`
+
+* Fix bug in `consensus_evaluate()` when algorithm has `NA` for all PAC values
+
 # diceR 0.2.0
 
 * New dimension reduction methods: t-SNE, largeVis (@dustin21)

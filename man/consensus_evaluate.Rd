@@ -45,18 +45,17 @@ number of algorithms is less than \code{n} no trimming is done.}
   the one giving the largest mean PAC across algorithms}
   \item{pac}{a data frame showing the PAC for each combination of algorithm
   and cluster size}
-  \item{internal}{a list of data frames for all k showing internal evaluation
+  \item{ii}{a list of data frames for all k showing internal evaluation
   indices}
-  \item{external}{a data frame showing external evaluation indices for
-  \code{k}}
-  \item{trim}{A list with 4 elements}
+  \item{ei}{a data frame showing external evaluation indices for \code{k}}
+  \item{trim.obj}{A list with 4 elements}
   \itemize{
     \item{\code{alg.keep} }{algorithms kept}
     \item{\code{alg.remove} }{algorithms removed}
-    \item{\code{rank.agg} }{a matrix of ranked algorithms for every internal
+    \item{\code{rank.matrix} }{a matrix of ranked algorithms for every internal
     evaluation index}
     \item{\code{top.list} }{final order of ranked algorithms}
-    \item{\code{data.new} }{A new version of a \code{consensus_cluster} data
+    \item{\code{E.new} }{A new version of a \code{consensus_cluster} data
     object}
   }
 }
@@ -76,7 +75,7 @@ are trimmed.
 # Consensus clustering for multiple algorithms
 set.seed(911)
 x <- matrix(rnorm(500), ncol = 10)
-CC <- consensus_cluster(x, nk = 3:4, reps = 10, algorithms = c("ap", "gmm"),
+CC <- consensus_cluster(x, nk = 3:4, reps = 10, algorithms = c("ap", "km"),
 progress = FALSE)
 
 # Evaluate algorithms on internal/external indices and trim algorithms:

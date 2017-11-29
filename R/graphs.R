@@ -28,8 +28,8 @@
 #' library(ggplot2)
 #' set.seed(911)
 #' x <- matrix(rnorm(100), ncol = 10)
-#' CC1 <- consensus_cluster(x, nk = 2:4, reps = 5,
-#' algorithms = c("hc", "ap", "gmm"), progress = FALSE)
+#' CC1 <- consensus_cluster(x, nk = 2:4, reps = 3,
+#' algorithms = c("hc", "ap", "km"), progress = FALSE)
 #'
 #' # Plot CDF
 #' p <- graph_cdf(CC1)
@@ -87,13 +87,12 @@ get_cdf <- function(mat) {
   if (inherits(mat, "array")) {
     mat <- consensus_combine(mat, element = "matrix")
   }
-  dat <- mat %>%
+  mat %>%
     purrr::modify_depth(2, ~ .x[lower.tri(.x, diag = TRUE)]) %>%
-    as.data.frame() %>%
+    purrr::imap(~ purrr::set_names(.x, paste(.y, names(.x), sep = "."))) %>%
+    dplyr::bind_cols() %>%
     tidyr::gather_("Group", "CDF", names(.)) %>%
-    tidyr::separate_("Group", c("k", "Method"), sep = "\\.") %>%
-    dplyr::mutate_(.dots = stats::setNames(list(~substring(k, first = 2)), "k"))
-  return(dat)
+    tidyr::separate_("Group", c("k", "Method"), sep = "\\.")
 }
 
 #' @param main heatmap title. If \code{NULL} (default), the titles will be taken
@@ -111,23 +110,21 @@ graph_heatmap <- function(mat, main = NULL, ...) {
     magrittr::set_names(list(purrr::map(mat, names)[[1]], names(mat)) %>%
                           purrr::cross() %>%
                           purrr::map_chr(paste, collapse = " k="))
-  if (is.null(main)) {
-    main <- names(dat)
-  } else {
-    assertthat::assert_that(length(main) == length(purrr::flatten(mat)))
-  }
-  hm.col <- grDevices::colorRampPalette(
-    RColorBrewer::brewer.pal(n = 9, "PuBuGn"))(256)
+  main <- paste(main %||% names(dat), "Consensus Matrix")
+  assertthat::assert_that(length(main) == length(purrr::flatten(mat)))
+
   cs.col <- RColorBrewer::brewer.pal(8, "Set2")
   cc <- purrr::map2(dat, rep(as.numeric(names(mat)),
                              each = unique(purrr::map_int(mat, length))),
                     ~ sample(cs.col)[hc(stats::dist(.x), k = .y)])
   purrr::pwalk(list(dat, main, cc), function(dat, main, cc)
-    gplots::heatmap.2(x = dat, main = paste(main, "Consensus Matrix"),
+    gplots::heatmap.2(x = dat, main = main, ColSideColors = cc,
+                      col = grDevices::colorRampPalette(
+                        RColorBrewer::brewer.pal(n = 9, "PuBuGn"))(256),
+                      labRow = "", labCol = "", trace = "none",
                       hclustfun = function(d)
                         stats::hclust(d, method = "average"),
-                      trace = "none", dendrogram = "column", col = hm.col,
-                      labRow = "", labCol = "", ColSideColors = cc, ...))
+                      dendrogram = "column", ...))
 }
 
 #' @rdname graphs
@@ -137,15 +134,13 @@ graph_tracking <- function(cl) {
     cl <- consensus_combine(cl, element = "class")
   }
   dat <- cl %>%
+    purrr::imap(~ `colnames<-`(.x, paste(.y, colnames(.x), sep = "."))) %>%
+    do.call(cbind, .) %>%
     as.data.frame() %>%
     tidyr::gather_("Group", "Class", names(.)) %>%
     tidyr::separate_("Group", c("k", "Method"), sep = "\\.") %>%
-    dplyr::mutate_(.dots = stats::setNames(list(~substring(k, first = 2),
-                                                ~factor(Class),
-                                                ~factor(Method)),
-                                           c("k", "Class", "Method"))) %>%
-    cbind(Samples = factor(seq_len(unique(purrr::map_int(cl, nrow)))),
-          levels = seq_len(unique(purrr::map_int(cl, nrow))))
+    cbind(Samples = seq_len(unique(purrr::map_int(cl, nrow)))) %>%
+    dplyr::mutate_at(dplyr::vars(c("Class", "Method", "Samples")), factor)
   if (length(unique(dat$k)) > 1) {
     p <- ggplot(dat, aes_(x = ~Samples, y = ~k)) +
       geom_tile(aes_(fill = ~Class)) +
@@ -168,4 +163,37 @@ graph_all <- function(x, ...) {
   graph_delta_area(mat)
   graph_heatmap(mat, ...)
   graph_tracking(cl)
+}
+
+#' Comparing ranked Algorithms vs internal indices (ii) in heatmap
+#' @inheritParams dice
+#' @param E object in \code{dice}
+#' @param clusters object in \code{dice}
+#' @noRd
+algii_heatmap <- function(data, nk, E, clusters, ref.cl = NULL) {
+  # Final clusters
+  fc <- E %>%
+    consensus_combine(element = "class") %>%
+    magrittr::extract2(as.character(nk)) %>%
+    cbind.data.frame(clusters) %>%
+    purrr::map_df(relabel_class, ref.cl = ref.cl %||% .[, 1])
+
+  # Internal indices
+  ii <- ivi_table(fc, data)
+
+  # Heatmap: order algorithms by ranked ii, remove indices with NaN
+  hm <- ii %>%
+    tibble::column_to_rownames("Algorithms") %>%
+    magrittr::extract(match(consensus_rank(ii, 1)$top.list, rownames(.)),
+                      purrr::map_lgl(., ~ all(!is.nan(.x))))
+
+  # Plot heatmap with annotated colours, column scaling, no further reordering
+  NMF::aheatmap(
+    hm,
+    annCol = data.frame(Criteria = c(rep("Maximized", 5), rep("Minimized", 8))),
+    annColors = list(Criteria = stats::setNames(c("darkgreen", "deeppink4"),
+                                                c("Maximized", "Minimized"))),
+    Colv = NA, Rowv = NA, scale = "column", col = "PiYG",
+    main = "Ranked Algorithms on Internal Validity Indices"
+  )
 }
