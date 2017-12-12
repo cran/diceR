@@ -39,3 +39,14 @@ test_that("graph_tracking works", {
 test_that("graph_all runs all of the above", {
   expect_error(graph_all(CC1), NA)
 })
+
+test_that("algii_heatmap works when there is more than one k", {
+  iris2 <- cbind(test = factor(sample(0:1, size = 25, replace = TRUE)),
+                 iris[1:25, 1:4])
+  assign("gowerd", function(x) cluster::daisy(x, metric = "gower"), pos = 1)
+  expect_error(
+    dice(iris2, nk = 3:4, reps = 2, algorithms = c("km", "pam"),
+         distance = "gowerd", k.method = "all", cons.funs = "majority",
+         plot = TRUE, progress = FALSE),
+    NA)
+})
