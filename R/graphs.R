@@ -3,23 +3,22 @@
 #' Graph cumulative distribution function (CDF) graphs, relative change in area
 #' under CDF curves, heatmaps, and cluster assignment tracking plots.
 #'
-#' \code{graph_cdf} plots the CDF for consensus matrices from different
-#' algorithms. \code{graph_delta_area} calculates the relative change in area
-#' under CDF curve between algorithms. \code{graph_heatmap} generates consensus
-#' matrix heatmaps for each algorithm in \code{x}. \code{graph_tracking} tracks
-#' how cluster assignments change between algorithms. \code{graph_all} is a
-#' wrapper that runs all graphing functions.
+#' `graph_cdf` plots the CDF for consensus matrices from different algorithms.
+#' `graph_delta_area` calculates the relative change in area under CDF curve
+#' between algorithms. `graph_heatmap` generates consensus matrix heatmaps for
+#' each algorithm in `x`. `graph_tracking` tracks how cluster assignments change
+#' between algorithms. `graph_all` is a wrapper that runs all graphing
+#' functions.
 #'
-#' @param x an object from \code{\link{consensus_cluster}}
-#' @param mat same as \code{x}, or a list of consensus matrices computed from
-#'   \code{x} for faster results
-#' @param cl same as \code{x}, or a matrix of consensus classes computed from
-#'   \code{x} for faster results
+#' @param x an object from [consensus_cluster()]
+#' @param mat same as `x`, or a list of consensus matrices computed from `x` for
+#'   faster results
+#' @param cl same as `x`, or a matrix of consensus classes computed from `x` for
+#'   faster results
 #' @return Various plots from \code{graph_*{}} functions. All plots are
-#'   generated using \code{ggplot}, except for \code{graph_heatmap}, which uses
-#'   \code{\link[gplots]{heatmap.2}}. Colours used in \code{graph_heatmap} and
-#'   \code{graph_tracking} utilize \code{\link[RColorBrewer]{RColorBrewer}}
-#'   palettes.
+#'   generated using `ggplot`, except for `graph_heatmap`, which uses
+#'   [gplots::heatmap.2()]. Colours used in `graph_heatmap` and `graph_tracking`
+#'   utilize [RColorBrewer::RColorBrewer()] palettes.
 #' @name graphs
 #' @author Derek Chiu
 #' @export
@@ -95,9 +94,9 @@ get_cdf <- function(mat) {
     tidyr::separate_("Group", c("k", "Method"), sep = "\\.")
 }
 
-#' @param main heatmap title. If \code{NULL} (default), the titles will be taken
-#'   from names in \code{mat}
-#' @param ... additional arguments to \code{\link[gplots]{heatmap.2}}
+#' @param main heatmap title. If `NULL` (default), the titles will be taken from
+#'   names in `mat`
+#' @param ... additional arguments to [gplots::heatmap.2()]
 #'
 #' @rdname graphs
 #' @export
@@ -167,8 +166,8 @@ graph_all <- function(x, ...) {
 
 #' Comparing ranked Algorithms vs internal indices (ii) in heatmap
 #' @inheritParams dice
-#' @param E object in \code{dice}
-#' @param clusters object in \code{dice}
+#' @param E object in `dice`
+#' @param clusters object in `dice`
 #' @noRd
 algii_heatmap <- function(data, nk, E, clusters, ref.cl = NULL) {
   # Cluster list to keep
@@ -179,8 +178,7 @@ algii_heatmap <- function(data, nk, E, clusters, ref.cl = NULL) {
   # Final cluster object construction depends on value of nk
   if (length(nk) > 1) {
     fc <- purrr::map2(cl.list, nk,
-                           ~ magrittr::set_colnames(.x, paste0(colnames(.),
-                                                               " k=", .y))) %>%
+                      ~ magrittr::set_colnames(.x, paste_k(colnames(.), .y))) %>%
       purrr::map2(split_clusters(clusters), cbind) %>%
       purrr::map(~ apply(., 2, relabel_class, ref.cl = ref.cl %||% .[, 1])) %>%
       do.call(cbind, .) %>%
@@ -216,11 +214,12 @@ algii_heatmap <- function(data, nk, E, clusters, ref.cl = NULL) {
 #' Split clusters matrix into list based on value of k
 #' @noRd
 split_clusters <- function(clusters) {
-  split.data.frame(
-    x = t(clusters),
-    f = stringr::str_split_fixed(string = rownames(t(clusters)),
-                                 pattern = " ",
-                                 n = 2)[, 2]
-  ) %>%
+  tc <- t(clusters)
+  split.data.frame(x = tc,
+                   f = stringr::str_split_fixed(
+                     string = rownames(tc),
+                     pattern = " ",
+                     n = 2
+                   )[, 2]) %>%
     purrr::map(t)
 }

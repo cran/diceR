@@ -1,3 +1,11 @@
+# diceR 0.3.2
+
+* Fix bug in `consensus_cluster()` when custom algorithms were excluded from output (thanks @phiala)
+
+* Use markdown language for documentation
+
+* Various performance improvements and code simplifications
+
 # diceR 0.3.1
 
 * Suppress success/fail message printout and fix input data to be matrix for block clustering

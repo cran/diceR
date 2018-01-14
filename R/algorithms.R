@@ -58,20 +58,17 @@ pam <- function(d, k) {
 #' Affinity Propagation
 #' @noRd
 ap <- function(x, k) {
-  cl <- suppressWarnings(
-    apcluster::apclusterK(
-      apcluster::negDistMat, x, k, verbose = FALSE)@idx
+  suppressWarnings(
+    apcluster::apclusterK(apcluster::negDistMat, x, k, verbose = FALSE)@idx
   ) %>%
     dplyr::dense_rank() %>%
-    purrr::set_names(rownames(x))
-  if (length(cl)) cl else NA
+    purrr::when(length(.) > 0 ~ ., ~ NA)
 }
 
 #' Spectral Clustering (Radial-Basis Kernel)
 #' @noRd
 sc <- function(x, k) {
-  kernlab::specc(as.matrix(x), k, kernel = "rbfdot")@.Data %>%
-    purrr::set_names(rownames(x))
+  kernlab::specc(as.matrix(x), k, kernel = "rbfdot")@.Data
 }
 
 #' Gaussian Mixture Model
@@ -83,23 +80,23 @@ gmm <- function(x, k) {
 #' Block Clustering (Co-clustering)
 #' @noRd
 block <- function(x, k) {
-  cl <- tryCatch(
+  tryCatch(
     sink_output(
       blockcluster::cocluster(as.matrix(x), "continuous",
                               nbcocluster = c(k, k))@rowclass + 1
     ),
     error = function(e) return(NA)
-  )
-  if (length(cl)) cl else NA
+  ) %>%
+    purrr::when(length(.) > 0 ~ ., ~ NA)
 }
 
 #' Self-Organizing Maps
 #' @noRd
 som <- function(x, k, xdim, ydim, rlen, alpha, method = "average") {
-  if (!is.matrix(x)) x <- as.matrix(x)
-  model <- som_train(x = x, xdim = xdim, ydim = ydim, rlen = rlen,
-                     alpha = alpha)
-  som_cluster(model = model, k = k, method = method)
+  x %>%
+    purrr::when(is.matrix(.) ~ ., ~ as.matrix(.)) %>%
+    som_train(xdim = xdim, ydim = ydim, rlen = rlen, alpha = alpha) %>%
+    som_cluster(k = k, method = method)
 }
 
 #' Train the SOM, specifiy grid size and other optional parameters based on the
@@ -157,19 +154,17 @@ hdbscan <- function(x, minPts) {
 #' Summarize the proportion of outliers and number of clusters
 #' remove from consensus array and assign as an attribute, if used
 #' @noRd
-hdbscan_summarize <- function(arr, algorithms) {
-  if ("hdbscan" %in% algorithms) {
-    h.idx <- match("HDBSCAN", dimnames(arr)[[3]])
-    h.obj <- arr[, , h.idx, ] %>%
-      as.data.frame() %>%
-      purrr::map(~ {
-        c(prop_outlier = sum(.x == 0, na.rm = TRUE) / sum(!is.na(.x)),
-          num_cluster = dplyr::n_distinct(!.x %in% c(NA, 0)))
-      }) %>%
-      purrr::transpose() %>%
-      purrr::map(unlist)
-    arr <- arr[, , -h.idx, , drop = FALSE]
-    attr(arr, "hdbscan") <- h.obj
-  }
+hdbscan_summarize <- function(arr) {
+  h.idx <- match("HDBSCAN", dimnames(arr)[[3]])
+  h.obj <- arr[, , h.idx, ] %>%
+    as.data.frame() %>%
+    purrr::map(~ {
+      c(prop_outlier = sum(.x == 0, na.rm = TRUE) / sum(!is.na(.x)),
+        num_cluster = dplyr::n_distinct(!.x %in% c(NA, 0)))
+    }) %>%
+    purrr::transpose() %>%
+    purrr::map(unlist)
+  arr <- arr[, , -h.idx, , drop = FALSE]
+  attr(arr, "hdbscan") <- h.obj
   arr
 }

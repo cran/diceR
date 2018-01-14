@@ -5,33 +5,31 @@
 #'
 #' See examples for how to use custom algorithms and distance functions. The
 #' default clustering algorithms provided are:
-#' \itemize{
-#'   \item{"nmf": }{Nonnegative Matrix Factorization (using Kullback-Leibler
-#'   Divergence or Euclidean distance; See Note for specifications.)}
-#'   \item{"hc": }{Hierarchical Clustering}
-#'   \item{"diana": }{DIvisive ANAlysis Clustering}
-#'   \item{"km": }{K-Means Clustering}
-#'   \item{"pam": }{Partition Around Medoids}
-#'   \item{"ap": }{Affinity Propagation}
-#'   \item{"sc": }{Spectral Clustering using Radial-Basis kernel function}
-#'   \item{"gmm": }{Gaussian Mixture Model using Bayesian Information Criterion
-#'   on EM algorithm}
-#'   \item{"block": }{Biclustering using a latent block model}
-#'   \item{"som": }{Self-Organizing Map (SOM) with Hierarchical Clustering}
-#'   \item{"cmeans": }{Fuzzy C-Means Clustering}
-#'   \item{"hdbscan": }{Hierarchical Density-based Spatial Clustering of
-#'   Applications with Noise (HDBSCAN)}
-#' }
+#' * "nmf": Nonnegative Matrix Factorization (using Kullback-Leibler Divergence
+#'   or Euclidean distance; See Note for specifications.)
+#' * "hc": Hierarchical Clustering
+#' * "diana": DIvisive ANAlysis Clustering
+#' * "km": K-Means Clustering
+#' * "pam": Partition Around Medoids
+#' * "ap": Affinity Propagation
+#' * "sc": Spectral Clustering using Radial-Basis kernel function
+#' * "gmm": Gaussian Mixture Model using Bayesian Information Criterion on EM
+#'   algorithm
+#' * "block": Biclustering using a latent block model
+#' * "som": Self-Organizing Map (SOM) with Hierarchical Clustering
+#' * "cmeans": Fuzzy C-Means Clustering
+#' * "hdbscan": Hierarchical Density-based Spatial Clustering of Applications
+#'   with Noise (HDBSCAN)
 #'
-#' The progress bar increments on every unit of \code{reps}.
+#' The progress bar increments on every unit of `reps`.
 #'
-#' @note The \code{nmf.method} defaults are "brunet" (Kullback-Leibler
-#'   divergence) and "lee" (Euclidean distance). When "hdbscan" is chosen as an
-#'   algorithm to use, its results are excluded from the rest of the consensus
-#'   clusters. This is because there is no guarantee that the cluster assignment
-#'   will have every sample clustered; more often than not there will be noise
-#'   points or outliers. In addition, the number of distinct clusters may not
-#'   even be equal to \code{nk}.
+#' @note The `nmf.method` defaults are "brunet" (Kullback-Leibler divergence)
+#'   and "lee" (Euclidean distance). When "hdbscan" is chosen as an algorithm to
+#'   use, its results are excluded from the rest of the consensus clusters. This
+#'   is because there is no guarantee that the cluster assignment will have
+#'   every sample clustered; more often than not there will be noise points or
+#'   outliers. In addition, the number of distinct clusters may not even be
+#'   equal to `nk`.
 #'
 #' @param data data matrix with rows as samples and columns as variables
 #' @param nk number of clusters (k) requested; can specify a single integer or a
@@ -44,41 +42,39 @@
 #'   "km", "pam", "ap", "sc", "gmm", "block", "som", "cmeans", "hdbscan". A
 #'   custom clustering algorithm can be used.
 #' @param nmf.method specify NMF-based algorithms to run. By default the
-#'   "brunet" and "lee" algorithms are called. See \code{\link[NMF]{nmf}} for
-#'   details.
+#'   "brunet" and "lee" algorithms are called. See [NMF::nmf()] for details.
 #' @param xdim x dimension of the SOM grid
 #' @param ydim y dimension of the SOM grid
 #' @param rlen the number of times the complete data set will be presented to
 #'   the SOM network.
 #' @param alpha SOM learning rate, a vector of two numbers indicating the amount
-#'   of change. Default is to decline linearly from 0.05 to 0.01 over
-#'   \code{rlen} updates. Not used for the batch algorithm.
+#'   of change. Default is to decline linearly from 0.05 to 0.01 over `rlen`
+#'   updates. Not used for the batch algorithm.
 #' @param minPts minimum size of clusters for HDBSCAN. Default is 5.
 #' @param distance a vector of distance functions. Defaults to "euclidean".
-#'   Other options are given in \code{\link[stats]{dist}}. A custom distance
-#'   function can be used.
-#' @param prep.data Prepare the data on the "full" dataset, the
-#'   "sampled" dataset, or "none" (default).
+#'   Other options are given in [stats::dist()]. A custom distance function can
+#'   be used.
+#' @param prep.data Prepare the data on the "full" dataset, the "sampled"
+#'   dataset, or "none" (default).
 #' @inheritParams prepare_data
 #' @param progress logical; should a progress bar be displayed?
 #' @param seed.nmf random seed to use for NMF-based algorithms
 #' @param seed.data seed to use to ensure each algorithm operates on the same
 #'   set of subsamples
-#' @param file.name if not \code{NULL}, the returned array will be saved at each
-#'   iteration as well as at the end of the function call to an \code{rds}
-#'   object with \code{file.name} as the file name.
-#' @param time.saved logical; if \code{TRUE}, the date saved is appended to
-#'   \code{file.name}. Only applicable when \code{file.name} is not \code{NULL}.
-#' @return An array of dimension \code{nrow(x)} by \code{reps} by
-#'   \code{length(algorithms)} by \code{length(nk)}. Each cube of the array
-#'   represents a different k. Each slice of a cube is a matrix showing
-#'   consensus clustering results for algorithms. The matrices have a row for
-#'   each sample, and a column for each subsample. Each entry represents a class
-#'   membership.
+#' @param file.name if not `NULL`, the returned array will be saved at each
+#'   iteration as well as at the end of the function call to an `rds` object
+#'   with `file.name` as the file name.
+#' @param time.saved logical; if `TRUE`, the date saved is appended to
+#'   `file.name`. Only applicable when `file.name` is not `NULL`.
+#' @return An array of dimension `nrow(x)` by `reps` by `length(algorithms)` by
+#'   `length(nk)`. Each cube of the array represents a different k. Each slice
+#'   of a cube is a matrix showing consensus clustering results for algorithms.
+#'   The matrices have a row for each sample, and a column for each subsample.
+#'   Each entry represents a class membership.
 #'
-#'   When "hdbscan" is part of \code{algorithms}, we do not include its clustering
-#'   array in the consensus result. Instead, we report two summary statistics
-#'   as attributes: the proportion of outliers and the number of clusters.
+#'   When "hdbscan" is part of `algorithms`, we do not include its clustering
+#'   array in the consensus result. Instead, we report two summary statistics as
+#'   attributes: the proportion of outliers and the number of clusters.
 #' @author Derek Chiu, Aline Talhouk
 #' @importFrom mclust mclustBIC
 #' @export
@@ -119,10 +115,12 @@ consensus_cluster <- function(data, nk = 2:4, p.item = 0.8, reps = 1000,
     data <- prepare_data(data, scale = scale, type = type, min.var = min.var)
   algorithms <- algorithms %||% ALG_NAMES  # Use all if none are specified
 
-  # Calculate total number of algorithms
-  algs <- dplyr::lst(NALG, DALG, OALG) %>%
+  # Calculate total number of algorithms, including custom ones into DALG
+  calgs <- algorithms[!algorithms %in% ALG_NAMES]
+  algs <- dplyr::lst(NALG, DALG = c(DALG, calgs), OALG) %>%
     purrr::map(~ algorithms[algorithms %in% .x])
   lalg <- lengths(algs) * lengths(list(nmf.method, distance, 1))
+  n <- nrow(data)
 
   if (progress) {
     pb <- progress::progress_bar$new(
@@ -136,24 +134,25 @@ consensus_cluster <- function(data, nk = 2:4, p.item = 0.8, reps = 1000,
 
   # Argument lists: Common, NMF, Distance, Other
   cargs <- dplyr::lst(data, nk, p.item, reps, seed.data, prep.data, scale, type,
-                      min.var, pb, lalg)
+                      min.var, pb, lalg, n)
   nargs <- dplyr::lst(algs = algs$NALG, nmf.method, seed.nmf)
   dargs <- dplyr::lst(algs = algs$DALG, distance)
   oargs <- dplyr::lst(algs = algs$OALG, xdim, ydim, rlen, alpha, minPts)
   args <- purrr::map(list(nargs, dargs, oargs), ~ c(cargs, .))
 
-  # Run cc on all algorithms, combine on 3rd dim, HDBSCAN manipulation
+  # Run cc on all algorithms, combine on 3rd dim
   fun <- list(cc_nmf, cc_dist, cc_other)
-  arr_all <- purrr::pmap(list(fun, args), cc) %>%
-    abind::abind(along = 3) %>%
-    hdbscan_summarize(algorithms)
+  arr_all <- purrr::pmap(list(fun, args), cc) %>% abind::abind(along = 3)
+  if ("hdbscan" %in% algorithms) {
+    arr_all <- hdbscan_summarize(arr_all)  # HDBSCAN summaries
+  }
 
   if (!is.null(file.name)) {
     if (time.saved) {
       file.name <- paste0(file.name, "_",
                           format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
     }
-    saveRDS(arr_all, file = paste0(file.name, ".rds"))
+    saveRDS(arr_all, file = paste0(file.name, ".rds"), version = 2)
   }
   arr_all
 }
@@ -167,10 +166,9 @@ cc <- function(fun, args) {
 #' Cluster NMF-based algorithms
 #' @noRd
 cc_nmf <- function(data, nk, p.item, reps, algs, nmf.method, seed.nmf,
-                   seed.data, prep.data, scale, type, min.var, pb, lalg) {
-  n <- nrow(data)
+                   seed.data, prep.data, scale, type, min.var, pb, lalg, n) {
   alg <- paste(toupper(algs), Hmisc::capitalize(nmf.method), sep = "_")
-  arr_nmf <- init_array(data, reps, alg, nk)
+  arr <- init_array(data, reps, alg, nk)
   x_nmf <- nmf_transform(data)
 
   for (j in seq_along(nmf.method)) {
@@ -189,22 +187,21 @@ cc_nmf <- function(data, nk, p.item, reps, algs, nmf.method, seed.nmf,
           pb$tick(tokens = list(num = j, den = sum(lalg), alg = alg[j],
                                 k = nk[k]))
         }
-        arr_nmf[ind.new, i, j, k] <- nmf(x, nk[k], nmf.method[j], seed.nmf)
+        arr[ind.new, i, j, k] <- nmf(x, nk[k], nmf.method[j], seed.nmf)
       }
     }
   }
-  arr_nmf
+  arr
 }
 
 #' Cluster algorithms with dissimilarity specification
 #' @noRd
 cc_dist <- function(data, nk, p.item, reps, algs, distance, seed.data,
-                    prep.data, scale, type, min.var, pb, lalg) {
-  n <- nrow(data)
+                    prep.data, scale, type, min.var, pb, lalg, n) {
   alg <- paste(rep(toupper(algs), each = length(distance)),
                rep(Hmisc::capitalize(distance), length(algs)),
                sep = "_")
-  arr_dist <- init_array(data, reps, alg, nk)
+  arr <- init_array(data, reps, alg, nk)
 
   for (j in seq_along(algs)) {
     for (k in seq_along(nk)) {
@@ -222,22 +219,21 @@ cc_dist <- function(data, nk, p.item, reps, algs, distance, seed.data,
             pb$tick(tokens = list(num = j + lalg["NALG"], den = sum(lalg),
                                   alg = alg[a], k = nk[k]))
           }
-          arr_dist[ind.new, i, a, k] <- get(algs[j])(dists, nk[k]) # custom
+          arr[ind.new, i, a, k] <- get(algs[j])(dists, nk[k]) # custom
         }
       }
     }
   }
-  arr_dist
+  arr
 }
 
 #' Cluster other algorithms
 #' @noRd
 cc_other <- function(data, nk, p.item, reps, algs, xdim, ydim, rlen, alpha,
                      minPts, seed.data, prep.data, scale, type, min.var, pb,
-                     lalg) {
-  n <- nrow(data)
+                     lalg, n) {
   alg <- toupper(algs)
-  arr_other <- init_array(data, reps, alg, nk)
+  arr <- init_array(data, reps, alg, nk)
 
   for (j in seq_along(algs)) {
     for (k in seq_along(nk)) {
@@ -252,7 +248,7 @@ cc_other <- function(data, nk, p.item, reps, algs, xdim, ydim, rlen, alpha,
           pb$tick(tokens = list(num = j + sum(lalg[c("NALG", "DALG")]),
                                 den = sum(lalg), alg = alg[j], k = nk[k]))
         }
-        arr_other[ind.new, i, j, k] <-
+        arr[ind.new, i, j, k] <-
           switch(algs[j],
                  ap = ap(x, nk[k]),
                  sc = sc(x, nk[k]),
@@ -265,7 +261,7 @@ cc_other <- function(data, nk, p.item, reps, algs, xdim, ydim, rlen, alpha,
       }
     }
   }
-  arr_other
+  arr
 }
 
 #' Initialize array to store consensus clustering results
