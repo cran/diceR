@@ -1,3 +1,9 @@
+# diceR 0.4.0
+
+* Replace all code that depended on `NMF` with `NNLM` and `pheatmap`: CRAN notified that `NMF` will be archived because of inactive maintenance
+
+* Update `.yml` files default templates
+
 # diceR 0.3.2
 
 * Fix bug in `consensus_cluster()` when custom algorithms were excluded from output (thanks @phiala)

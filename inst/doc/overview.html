@@ -90,7 +90,7 @@ hgsc &lt;-<span class="st"> </span>hgsc[<span class="dv">1</span><span class="op
 <h2>Clustering Algorithms</h2>
 <p>The list of clustering algorithms available for use are:</p>
 <ul>
-<li><code>&quot;nmf&quot;</code>: Nonnegative Matrix Factorization (using Kullback-Leibler Divergence or Euclidean distance)</li>
+<li><code>&quot;nmf&quot;</code>: Nonnegative Matrix Factorization (using sequential coordinate-wise descent or Lee’s multiplicative algorithm)</li>
 <li><code>&quot;hc&quot;</code>: Hierarchical Clustering</li>
 <li><code>&quot;diana&quot;</code>: DIvisive ANAlysis Clustering</li>
 <li><code>&quot;km&quot;</code>: K-Means Clustering</li>
@@ -392,8 +392,8 @@ ccomb_class2 &lt;-<span class="st"> </span><span class="kw">consensus_combine</s
 </tbody>
 </table>
 </div>
-<div id="evaluate-trim-and-reweigh-algortihms-with-consensus_evaluate" class="section level3">
-<h3>Evaluate, trim, and reweigh algortihms with <code>consensus_evaluate()</code></h3>
+<div id="evaluate-trim-and-reweigh-algorithms-with-consensus_evaluate" class="section level3">
+<h3>Evaluate, trim, and reweigh algorithms with <code>consensus_evaluate()</code></h3>
 <p>Internal cluster validation indices assess the performance of results by taking into account the compactness and separability of the clusters. We choose a variety of indices on which to compare the collection of clustering algorithms. We use the PAC (Proportion of Ambiguous Clusters), the proportion of entries in a consensus matrix that are strictly between <code>lower</code> (defaults to 0) and <code>upper</code> (defaults to 1), to give a measure of cluster stability. In addition, if no reference class is provided, we calculate the average PAC across algorithms within each <code>k</code>, and choose the <code>k</code> with the greatest average PAC. If there <em>is</em> a reference class, <code>k</code> is the number of distinct classes in the reference.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ccomp &lt;-<span class="st"> </span><span class="kw">consensus_evaluate</span>(hgsc, CC, CC2, <span class="dt">plot =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <table>
