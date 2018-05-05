@@ -1,8 +1,8 @@
 Type: Package
 Package: diceR
 Title: Diverse Cluster Ensemble in R
-Version: 0.4.0
-Date: 2018-02-22
+Version: 0.5.0
+Date: 2018-05-03
 Authors@R: c(
     person("Derek", "Chiu", , "dchiu@bccrc.ca", c("aut", "cre")),
     person("Aline", "Talhouk", , "atalhouk@bccrc.ca", "aut"),
@@ -22,8 +22,8 @@ Depends: R (>= 3.1)
 Imports: abind, apcluster, assertthat, blockcluster, caret, class, cli,
         clue, cluster, clusterCrit, clValid, dbscan, dplyr, e1071,
         flux, ggplot2, gplots, grDevices, Hmisc, infotheo, kernlab,
-        klaR, kohonen, largeVis, magrittr, mclust, methods, NNLM,
-        pheatmap, progress, purrr (>= 0.2.3), quantable, RankAggreg,
+        klaR, kohonen, largeVis, magrittr, mclust, methods, NMF,
+        progress, purrr (>= 0.2.3), quantable, RankAggreg,
         RColorBrewer, Rcpp, Rtsne, sigclust, stringr, tibble, tidyr
 Suggests: covr, knitr, pander, rmarkdown, testthat
 LinkingTo: Rcpp
@@ -32,10 +32,10 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 NeedsCompilation: yes
-Packaged: 2018-02-22 23:31:39 UTC; dchiu
+Packaged: 2018-05-04 18:55:30 UTC; dchiu
 Author: Derek Chiu [aut, cre],
   Aline Talhouk [aut],
   Johnson Liu [ctb, com]
 Maintainer: Derek Chiu <dchiu@bccrc.ca>
 Repository: CRAN
-Date/Publication: 2018-02-22 23:44:40 UTC
+Date/Publication: 2018-05-05 16:12:24 UTC

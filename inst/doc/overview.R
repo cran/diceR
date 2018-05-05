@@ -60,6 +60,16 @@ str(ccomb_matrix, max.level = 2)
 ## ----consensus_combine_table, echo=FALSE, results='asis'-----------------
 pandoc.table(head(ccomb_class$`4`), caption = "Consensus Classes")
 
+## ----consensus_matrix_ccomb_class----------------------------------------
+# consensus matrix across subsamples and algorithms within k = 3
+cm_k3 <- consensus_matrix(ccomb_class$`3`)
+
+# consensus matrix across subsamples and algorithms within k = 4
+cm_k4 <- consensus_matrix(ccomb_class$`4`)
+
+# consensus matrix across subsamples and algorithms and k
+cm_all <- consensus_matrix(ccomb_class)
+
 ## ----consensus_combine_2_str, results='hide'-----------------------------
 CC2 <- consensus_cluster(hgsc, nk = 3:4, p.item = 0.8, reps = 5,
                          algorithms = "km")
