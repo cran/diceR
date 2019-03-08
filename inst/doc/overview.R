@@ -92,6 +92,7 @@ ctrim <- consensus_evaluate(hgsc, CC, CC2, trim = TRUE, reweigh = FALSE, n = 2)
 str(ctrim, max.level = 2)
 
 ## ----sigclust------------------------------------------------------------
+suppressWarnings(RNGversion("3.5.0"))
 set.seed(1)
 pam_4 <- ccomb_class2$`4`[, "PAM_Euclidean"]
 sig_obj <- sigclust(hgsc, k = 4, nsim = 100, labflag = 0, label = pam_4)

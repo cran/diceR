@@ -1,3 +1,15 @@
+# diceR 0.5.2
+
+* Fix `length > 1 in coercion to logical` error in `consensus_evaluate()` due to comparisons using `||` operator
+
+* Add `suppressWarnings(RNGversion("3.5.0"))` before call to `set.seed()` in examples, tests, and vignette to use old RNG sampling
+
+* Use `.covrignore` to exclude `zzz.R` from being considered in code coverage
+
+* Use `dplyr` version >= 0.7.5 to ensure `bind_rows()` works
+
+* Fixed bug where scaled matrix using the "robust" method in `prepare_data()` was nested in the `data` element (@AlineTalhouk, #134)
+
 # diceR 0.5.1
 
 * Add parameter `hc.method` in `dice` and `consensus_cluster` to pass to `method` parameter in `stats::hclust` (@JakeNel28, #130)

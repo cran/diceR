@@ -4,8 +4,8 @@
 \alias{prepare_data}
 \title{Prepare data for consensus clustering}
 \usage{
-prepare_data(data, scale = TRUE, type = c("conventional", "robust", "tsne"),
-  min.var = 1)
+prepare_data(data, scale = TRUE, type = c("conventional", "robust",
+  "tsne"), min.var = 1)
 }
 \arguments{
 \item{data}{data matrix with rows as samples and columns as variables}
@@ -37,6 +37,7 @@ just two variables. This lower-dimensional embedding allows algorithms such
 as hierarchical clustering to achieve greater performance.
 }
 \examples{
+suppressWarnings(RNGversion("3.5.0"))
 set.seed(2)
 x <- replicate(10, rnorm(100))
 x.prep <- prepare_data(x)
