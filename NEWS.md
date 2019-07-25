@@ -1,3 +1,11 @@
+# diceR 0.6.0
+
+* Remove deprecated `dplyr` functions and use `.data` pronoun
+
+* k-means clustering should not support distance matrices as input (@jerryji1993, #139)
+
+* Add LCA as a consensus function (@philstraforelli, #137)
+
 # diceR 0.5.2
 
 * Fix `length > 1 in coercion to logical` error in `consensus_evaluate()` due to comparisons using `||` operator
