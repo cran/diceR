@@ -20,7 +20,7 @@ Finds a permutation of a matrix such that its Frobenius norm with another
 matrix is minimized.
 }
 \details{
-Finds the permutation P of A such that \code{||PA - B||} is minimum in Frobenius
+Finds the permutation P of A such that \verb{||PA - B||} is minimum in Frobenius
 norm. Uses the linear-sum assignment problem (LSAP) solver in the package
 \code{clue}. The default B is the identity matrix of same dimension, so that the
 permutation of A maximizes its trace. This procedure is useful for
@@ -29,7 +29,6 @@ predicted class and want to compare to a reference class.
 }
 \examples{
 
-suppressWarnings(RNGversion("3.5.0"))
 set.seed(1)
 A <- matrix(sample(1:25, size = 25, rep = FALSE), 5, 5)
 min_fnorm(A)
