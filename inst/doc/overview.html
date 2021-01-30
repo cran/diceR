@@ -14,35 +14,16 @@
 
 <title>Cluster Analysis using diceR</title>
 
-<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
-// be compatible with the behavior of Pandoc < 2.8).
-document.addEventListener('DOMContentLoaded', function(e) {
-  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
-  var i, h, a;
-  for (i = 0; i < hs.length; i++) {
-    h = hs[i];
-    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
-    a = h.attributes;
-    while (a.length > 0) h.removeAttribute(a[0].name);
-  }
-});
-</script>
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -135,187 +116,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
 
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -335,16 +137,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Introduction</h2>
 <p>Cluster analysis is a way of “slicing and dicing” data to allow the grouping together of similar entities and the separation of dissimilar ones. Issues arise due to the existence of a diverse number of clustering algorithms, each with different techniques and inputs, and with no universally optimal methodology. Thus, a framework for cluster analysis and validation methods are needed. Our approach is to use cluster ensembles from a diverse set of algorithms. This ensures that the data has been considered from several angles and using a variety of methods. We have currently implemented about 15 clustering algorithms, and we provide a simple framework to add additional algorithms (see <code>example(&quot;consensus_cluster&quot;)</code>). Although results are dependent on the subset of algorithms chosen for the ensemble, the intent is that we capture a variety of clustering outputs and select those that are most consistent with the data.</p>
 <p>You can install <code>diceR</code> from CRAN with:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">install.packages</span>(<span class="st">&quot;diceR&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;diceR&quot;</span>)</span></code></pre></div>
 <p>Or get the latest development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a>devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;AlineTalhouk/diceR&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(diceR)</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">library</span>(dplyr)</span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">library</span>(pander)</span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="kw">data</span>(hgsc)</span>
-<span id="cb3-6"><a href="#cb3-6"></a>hgsc &lt;-<span class="st"> </span>hgsc[<span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">50</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;AlineTalhouk/diceR&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(diceR)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pander)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hgsc)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>hgsc <span class="ot">&lt;-</span> hgsc[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>]</span></code></pre></div>
 <p>We load an excerpt of an expression data set from TCGA of 100 high grade serous carcinoma samples measured on 50 genes.</p>
 </div>
 <div id="clustering-algorithms" class="section level2">
@@ -420,27 +222,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Consensus Clustering</h2>
 <p>When Monti et al. (2003) first introduced consensus clustering, the idea was to use one clustering algorithm on bootstrapped subsamples of the data. We implement some extensions where a consensus is reached across subsamples <em>and</em> across algorithms. The final cluster assignment is then computed using statistical transformations on the ensemble cluster.</p>
 <p>The base function of this package is <code>consensus_cluster()</code>, which outputs cluster assignments across subsamples and algorithms, for different k (number of clusters). For example, let’s say we were interested in clustering the <code>hgsc</code> data into 3 or 4 clusters, using 80% resampling on 5 replicates, for these clustering algorithms: Hierarchical Clustering, PAM, and DIvisive ANAlysis Clustering (DIANA). Euclidean distance is used for all algorithms.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>CC &lt;-<span class="st"> </span><span class="kw">consensus_cluster</span>(hgsc, <span class="dt">nk =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">4</span>, <span class="dt">p.item =</span> <span class="fl">0.8</span>, <span class="dt">reps =</span> <span class="dv">5</span>,</span>
-<span id="cb4-2"><a href="#cb4-2"></a>                        <span class="dt">algorithms =</span> <span class="kw">c</span>(<span class="st">&quot;hc&quot;</span>, <span class="st">&quot;pam&quot;</span>, <span class="st">&quot;diana&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>CC <span class="ot">&lt;-</span> <span class="fu">consensus_cluster</span>(hgsc, <span class="at">nk =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">p.item =</span> <span class="fl">0.8</span>, <span class="at">reps =</span> <span class="dv">5</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">algorithms =</span> <span class="fu">c</span>(<span class="st">&quot;hc&quot;</span>, <span class="st">&quot;pam&quot;</span>, <span class="st">&quot;diana&quot;</span>))</span></code></pre></div>
 <p>The output is a 4-dimensional array: rows are samples, columns are different bootstrap subsample replicates, slices are algorithms, and each “box” (4th dimension) is for a different k. Below are the first few cluster assignments for each replicate in the DIANA algorithm for k = 3.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>co &lt;-<span class="st"> </span><span class="kw">capture.output</span>(<span class="kw">str</span>(CC))</span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">strwrap</span>(co, <span class="dt">width =</span> <span class="dv">80</span>)</span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="co">#&gt; [1] &quot;int [1:100, 1:5, 1:3, 1:2] 1 3 1 3 1 1 1 NA 1 1 ...&quot;                   </span></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="co">#&gt; [2] &quot;- attr(*, \&quot;dimnames\&quot;)=List of 4&quot;                                     </span></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; [3] &quot;..$ : chr [1:100] \&quot;TCGA.04.1331_PRO.C5\&quot; \&quot;TCGA.04.1332_MES.C1\&quot;&quot;     </span></span>
-<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#&gt; [4] &quot;\&quot;TCGA.04.1336_DIF.C4\&quot; \&quot;TCGA.04.1337_MES.C1\&quot; ...&quot;                   </span></span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; [5] &quot;..$ : chr [1:5] \&quot;R1\&quot; \&quot;R2\&quot; \&quot;R3\&quot; \&quot;R4\&quot; ...&quot;                       </span></span>
-<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt; [6] &quot;..$ : chr [1:3] \&quot;HC_Euclidean\&quot; \&quot;PAM_Euclidean\&quot; \&quot;DIANA_Euclidean\&quot;&quot;</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt; [7] &quot;..$ : chr [1:2] \&quot;3\&quot; \&quot;4\&quot;&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>co <span class="ot">&lt;-</span> <span class="fu">capture.output</span>(<span class="fu">str</span>(CC))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">strwrap</span>(co, <span class="at">width =</span> <span class="dv">80</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;int [1:100, 1:5, 1:3, 1:2] 1 1 NA NA NA 1 1 NA 1 NA ...&quot;               </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2] &quot;- attr(*, \&quot;dimnames\&quot;)=List of 4&quot;                                     </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3] &quot;..$ : chr [1:100] \&quot;TCGA.04.1331_PRO.C5\&quot; \&quot;TCGA.04.1332_MES.C1\&quot;&quot;     </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;\&quot;TCGA.04.1336_DIF.C4\&quot; \&quot;TCGA.04.1337_MES.C1\&quot; ...&quot;                   </span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5] &quot;..$ : chr [1:5] \&quot;R1\&quot; \&quot;R2\&quot; \&quot;R3\&quot; \&quot;R4\&quot; ...&quot;                       </span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6] &quot;..$ : chr [1:3] \&quot;HC_Euclidean\&quot; \&quot;PAM_Euclidean\&quot; \&quot;DIANA_Euclidean\&quot;&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [7] &quot;..$ : chr [1:2] \&quot;3\&quot; \&quot;4\&quot;&quot;</span></span></code></pre></div>
 <table style="width:71%;">
 <caption>Cluster Assignments for DIANA, k = 3</caption>
 <colgroup>
-<col width="36%"></col>
-<col width="6%"></col>
-<col width="6%"></col>
-<col width="6%"></col>
-<col width="6%"></col>
-<col width="6%"></col>
+<col width="36%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -455,11 +257,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <tbody>
 <tr class="odd">
 <td align="center"><strong>TCGA.04.1331_PRO.C5</strong></td>
-<td align="center">1</td>
 <td align="center">2</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
+<td align="center">2</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>TCGA.04.1332_MES.C1</strong></td>
@@ -467,49 +269,49 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <td align="center">2</td>
 <td align="center">1</td>
 <td align="center">1</td>
-<td align="center">NA</td>
+<td align="center">1</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>TCGA.04.1336_DIF.C4</strong></td>
-<td align="center">2</td>
-<td align="center">NA</td>
 <td align="center">NA</td>
 <td align="center">1</td>
+<td align="center">NA</td>
+<td align="center">2</td>
 <td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>TCGA.04.1337_MES.C1</strong></td>
+<td align="center">NA</td>
+<td align="center">NA</td>
 <td align="center">2</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">1</td>
+<td align="center">2</td>
 <td align="center">2</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>TCGA.04.1338_MES.C1</strong></td>
+<td align="center">NA</td>
+<td align="center">NA</td>
 <td align="center">2</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">1</td>
+<td align="center">2</td>
 <td align="center">2</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>TCGA.04.1341_PRO.C5</strong></td>
-<td align="center">1</td>
 <td align="center">2</td>
+<td align="center">NA</td>
 <td align="center">1</td>
-<td align="center">2</td>
+<td align="center">NA</td>
 <td align="center">1</td>
 </tr>
 </tbody>
 </table>
 <p>Note the unavoidable presence of <code>NA</code>s because we used 80% subsampling. This can be problematic in certain downstream ensemble methods, so we can impute missing values using K-Nearest Neighbours beforehand. There might still be <code>NA</code>s after KNN because of how the decision threshold was set. The remaining missing values can be imputed using majority voting.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>CC &lt;-<span class="st"> </span><span class="kw">apply</span>(CC, <span class="dv">2</span><span class="op">:</span><span class="dv">4</span>, impute_knn, <span class="dt">data =</span> hgsc, <span class="dt">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb6-2"><a href="#cb6-2"></a>CC_imputed &lt;-<span class="st"> </span><span class="kw">impute_missing</span>(CC, hgsc, <span class="dt">nk =</span> <span class="dv">4</span>)</span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">sum</span>(<span class="kw">is.na</span>(CC))</span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="kw">sum</span>(<span class="kw">is.na</span>(CC_imputed))</span>
-<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>CC <span class="ot">&lt;-</span> <span class="fu">apply</span>(CC, <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, impute_knn, <span class="at">data =</span> hgsc, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>CC_imputed <span class="ot">&lt;-</span> <span class="fu">impute_missing</span>(CC, hgsc, <span class="at">nk =</span> <span class="dv">4</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(CC))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(CC_imputed))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span></code></pre></div>
 <p>We can carry on the analysis using either <code>CC</code> or <code>CC_imputed</code>.</p>
 </div>
 <div id="consensus-functions" class="section level2">
@@ -523,34 +325,34 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="compute-consensus-matrix-with-consensus_matrix" class="section level3">
 <h3>Compute consensus matrix with <code>consensus_matrix()</code></h3>
 <p>The consensus matrix is an n by n matrix, where n is the number of samples. Each element is a real-valued number between 0 and 1 inclusive, representing the proportion of times that two samples were clustered together out of the times that the same samples were chosen in the bootstrap resampling. The diagonal are all one’s. Suppose we wanted to compute the consensus matrix for PAM, k = 4, and visualize using <code>graph_heatmap()</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>pam<span class="fl">.4</span> &lt;-<span class="st"> </span>CC[, , <span class="st">&quot;PAM_Euclidean&quot;</span>, <span class="st">&quot;4&quot;</span>, drop =<span class="st"> </span><span class="ot">FALSE</span>]</span>
-<span id="cb7-2"><a href="#cb7-2"></a>cm &lt;-<span class="st"> </span><span class="kw">consensus_matrix</span>(pam<span class="fl">.4</span>)</span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="kw">dim</span>(cm)</span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="co">#&gt; [1] 100 100</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>hm &lt;-<span class="st"> </span><span class="kw">graph_heatmap</span>(pam<span class="fl">.4</span>)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pam<span class="fl">.4</span> <span class="ot">&lt;-</span> CC[, , <span class="st">&quot;PAM_Euclidean&quot;</span>, <span class="st">&quot;4&quot;</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>cm <span class="ot">&lt;-</span> <span class="fu">consensus_matrix</span>(pam<span class="fl">.4</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(cm)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 100 100</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>hm <span class="ot">&lt;-</span> <span class="fu">graph_heatmap</span>(pam<span class="fl">.4</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
 </div>
 <div id="combine-consensus-summaries-with-consensus_combine" class="section level3">
 <h3>Combine consensus summaries with <code>consensus_combine()</code></h3>
 <p>If we wish to separately extract consensus matrices and consensus classes for every algorithm, <code>consensus_combine()</code> is a convenient wrapper to do so. Setting <code>element = &quot;matrix&quot;</code> returns a list of consensus matrices. On the other hand, setting <code>element = &quot;class&quot;</code> returns a matrix with rows as samples, and columns as clustering assignments for each algorithm.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>ccomb_matrix &lt;-<span class="st"> </span><span class="kw">consensus_combine</span>(CC, <span class="dt">element =</span> <span class="st">&quot;matrix&quot;</span>)</span>
-<span id="cb9-2"><a href="#cb9-2"></a>ccomb_class &lt;-<span class="st"> </span><span class="kw">consensus_combine</span>(CC, <span class="dt">element =</span> <span class="st">&quot;class&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">str</span>(ccomb_matrix, <span class="dt">max.level =</span> <span class="dv">2</span>)</span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt; List of 2</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="co">#&gt;  $ 3:List of 3</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="co">#&gt;   ..$ HC_Euclidean   : num [1:100, 1:100] 1 0.4 1 0.4 1 1 1 1 1 0.8 ...</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a><span class="co">#&gt;   ..$ PAM_Euclidean  : num [1:100, 1:100] 1 1 0.2 1 0 1 1 0.8 0 0 ...</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a><span class="co">#&gt;   ..$ DIANA_Euclidean: num [1:100, 1:100] 1 0.6 0 0 0 1 1 0 0 1 ...</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt;  $ 4:List of 3</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a><span class="co">#&gt;   ..$ HC_Euclidean   : num [1:100, 1:100] 1 0.2 1 0 1 1 1 1 1 0.8 ...</span></span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="co">#&gt;   ..$ PAM_Euclidean  : num [1:100, 1:100] 1 0.8 0 0.4 0 1 1 0.8 0 0 ...</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a><span class="co">#&gt;   ..$ DIANA_Euclidean: num [1:100, 1:100] 1 0.6 0 0 0 1 1 0 0 1 ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ccomb_matrix <span class="ot">&lt;-</span> <span class="fu">consensus_combine</span>(CC, <span class="at">element =</span> <span class="st">&quot;matrix&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>ccomb_class <span class="ot">&lt;-</span> <span class="fu">consensus_combine</span>(CC, <span class="at">element =</span> <span class="st">&quot;class&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ccomb_matrix, <span class="at">max.level =</span> <span class="dv">2</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 2</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ 3:List of 3</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ HC_Euclidean   : num [1:100, 1:100] 1 0.8 1 0.8 1 1 1 1 1 1 ...</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ PAM_Euclidean  : num [1:100, 1:100] 1 1 0.2 0.8 0 1 1 0.8 0 0.2 ...</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ DIANA_Euclidean: num [1:100, 1:100] 1 0.8 0 0 0 1 1 0 0 1 ...</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ 4:List of 3</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ HC_Euclidean   : num [1:100, 1:100] 1 0.6 1 0.6 1 1 1 1 1 0.8 ...</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ PAM_Euclidean  : num [1:100, 1:100] 1 1 0.2 0.8 0 0.8 0.8 0.6 0 0 ...</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ DIANA_Euclidean: num [1:100, 1:100] 1 0.8 0 0 0 1 1 0 0 1 ...</span></span></code></pre></div>
 <table style="width:68%;">
 <caption>Consensus Classes</caption>
 <colgroup>
-<col width="20%"></col>
-<col width="22%"></col>
-<col width="25%"></col>
+<col width="20%" />
+<col width="22%" />
+<col width="25%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -576,13 +378,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <td align="center">2</td>
 </tr>
 <tr class="even">
-<td align="center">3</td>
+<td align="center">2</td>
 <td align="center">1</td>
 <td align="center">2</td>
 </tr>
 <tr class="odd">
 <td align="center">1</td>
-<td align="center">2</td>
+<td align="center">3</td>
 <td align="center">2</td>
 </tr>
 <tr class="even">
@@ -593,25 +395,25 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 <p>One can feed in <code>ccomb_class</code> (instead of <code>CC</code>) into <code>consensus_matrix()</code> to obtain a consensus matrix across subsamples and algorithms (and k).</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># consensus matrix across subsamples and algorithms within k = 3</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a>cm_k3 &lt;-<span class="st"> </span><span class="kw">consensus_matrix</span>(ccomb_class<span class="op">$</span><span class="st">`</span><span class="dt">3</span><span class="st">`</span>)</span>
-<span id="cb11-3"><a href="#cb11-3"></a></span>
-<span id="cb11-4"><a href="#cb11-4"></a><span class="co"># consensus matrix across subsamples and algorithms within k = 4</span></span>
-<span id="cb11-5"><a href="#cb11-5"></a>cm_k4 &lt;-<span class="st"> </span><span class="kw">consensus_matrix</span>(ccomb_class<span class="op">$</span><span class="st">`</span><span class="dt">4</span><span class="st">`</span>)</span>
-<span id="cb11-6"><a href="#cb11-6"></a></span>
-<span id="cb11-7"><a href="#cb11-7"></a><span class="co"># consensus matrix across subsamples and algorithms and k</span></span>
-<span id="cb11-8"><a href="#cb11-8"></a>cm_all &lt;-<span class="st"> </span><span class="kw">consensus_matrix</span>(ccomb_class)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># consensus matrix across subsamples and algorithms within k = 3</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>cm_k3 <span class="ot">&lt;-</span> <span class="fu">consensus_matrix</span>(ccomb_class<span class="sc">$</span><span class="st">`</span><span class="at">3</span><span class="st">`</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># consensus matrix across subsamples and algorithms within k = 4</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>cm_k4 <span class="ot">&lt;-</span> <span class="fu">consensus_matrix</span>(ccomb_class<span class="sc">$</span><span class="st">`</span><span class="at">4</span><span class="st">`</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># consensus matrix across subsamples and algorithms and k</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>cm_all <span class="ot">&lt;-</span> <span class="fu">consensus_matrix</span>(ccomb_class)</span></code></pre></div>
 <p>A situation might also arise where we initially decided on using 3 clustering algorithms for the ensemble, but later wish to add additional algorithms for analysis. <code>consensus_combine()</code> takes in any number of ensemble objects (e.g. <code>CC</code> and <code>CC2</code>) and combines the results.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>CC2 &lt;-<span class="st"> </span><span class="kw">consensus_cluster</span>(hgsc, <span class="dt">nk =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">4</span>, <span class="dt">p.item =</span> <span class="fl">0.8</span>, <span class="dt">reps =</span> <span class="dv">5</span>,</span>
-<span id="cb12-2"><a href="#cb12-2"></a>                         <span class="dt">algorithms =</span> <span class="st">&quot;km&quot;</span>)</span>
-<span id="cb12-3"><a href="#cb12-3"></a>ccomb_class2 &lt;-<span class="st"> </span><span class="kw">consensus_combine</span>(CC, CC2, <span class="dt">element =</span> <span class="st">&quot;class&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>CC2 <span class="ot">&lt;-</span> <span class="fu">consensus_cluster</span>(hgsc, <span class="at">nk =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">p.item =</span> <span class="fl">0.8</span>, <span class="at">reps =</span> <span class="dv">5</span>,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">algorithms =</span> <span class="st">&quot;km&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ccomb_class2 <span class="ot">&lt;-</span> <span class="fu">consensus_combine</span>(CC, CC2, <span class="at">element =</span> <span class="st">&quot;class&quot;</span>)</span></code></pre></div>
 <table style="width:75%;">
 <caption>Consensus Classes with KM added</caption>
 <colgroup>
-<col width="20%"></col>
-<col width="22%"></col>
-<col width="25%"></col>
-<col width="6%"></col>
+<col width="20%" />
+<col width="22%" />
+<col width="25%" />
+<col width="6%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -641,14 +443,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <td align="center">2</td>
 </tr>
 <tr class="even">
-<td align="center">3</td>
-<td align="center">1</td>
 <td align="center">2</td>
 <td align="center">1</td>
+<td align="center">2</td>
+<td align="center">2</td>
 </tr>
 <tr class="odd">
 <td align="center">1</td>
-<td align="center">2</td>
+<td align="center">3</td>
 <td align="center">2</td>
 <td align="center">2</td>
 </tr>
@@ -664,91 +466,140 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="evaluate-trim-and-reweigh-algorithms-with-consensus_evaluate" class="section level3">
 <h3>Evaluate, trim, and reweigh algorithms with <code>consensus_evaluate()</code></h3>
 <p>Internal cluster validation indices assess the performance of results by taking into account the compactness and separability of the clusters. We choose a variety of indices on which to compare the collection of clustering algorithms. We use the PAC (Proportion of Ambiguous Clusters), the proportion of entries in a consensus matrix that are strictly between <code>lower</code> (defaults to 0) and <code>upper</code> (defaults to 1), to give a measure of cluster stability. In addition, if no reference class is provided, we calculate the average PAC across algorithms within each <code>k</code>, and choose the <code>k</code> with the greatest average PAC. If there <em>is</em> a reference class, <code>k</code> is the number of distinct classes in the reference.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>ccomp &lt;-<span class="st"> </span><span class="kw">consensus_evaluate</span>(hgsc, CC, CC2, <span class="dt">plot =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ccomp <span class="ot">&lt;-</span> <span class="fu">consensus_evaluate</span>(hgsc, CC, CC2, <span class="at">plot =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <table style="width:100%;">
 <caption>Internal Indices for k = 4 (continued below)</caption>
 <colgroup>
-<col width="18%"></col>
-<col width="20%"></col>
-<col width="9%"></col>
-<col width="8%"></col>
-<col width="9%"></col>
-<col width="9%"></col>
-<col width="10%"></col>
-<col width="17%"></col>
+<col width="23%" />
+<col width="18%" />
+<col width="21%" />
+<col width="9%" />
+<col width="8%" />
+<col width="9%" />
+<col width="9%" />
 </colgroup>
 <thead>
 <tr class="header">
+<th align="center"> </th>
 <th align="center">Algorithms</th>
 <th align="center">calinski_harabasz</th>
 <th align="center">dunn</th>
 <th align="center">pbm</th>
 <th align="center">tau</th>
 <th align="center">gamma</th>
-<th align="center">c_index</th>
-<th align="center">davies_bouldin</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td align="center"><strong>HC_Euclidean</strong></td>
 <td align="center">HC_Euclidean</td>
-<td align="center">3.949</td>
-<td align="center">0.4524</td>
-<td align="center">13.25</td>
-<td align="center">0.3188</td>
-<td align="center">0.7036</td>
-<td align="center">0.2092</td>
-<td align="center">1.189</td>
+<td align="center">4.24</td>
+<td align="center">0.4205</td>
+<td align="center">11.98</td>
+<td align="center">0.3404</td>
+<td align="center">0.7049</td>
 </tr>
 <tr class="even">
+<td align="center"><strong>PAM_Euclidean</strong></td>
 <td align="center">PAM_Euclidean</td>
-<td align="center">15.09</td>
-<td align="center">0.2979</td>
-<td align="center">8.456</td>
-<td align="center">0.3756</td>
-<td align="center">0.5701</td>
-<td align="center">0.1796</td>
-<td align="center">2.177</td>
+<td align="center">15.4</td>
+<td align="center">0.2849</td>
+<td align="center">7.175</td>
+<td align="center">0.3615</td>
+<td align="center">0.5475</td>
 </tr>
 <tr class="odd">
+<td align="center"><strong>DIANA_Euclidean</strong></td>
 <td align="center">DIANA_Euclidean</td>
-<td align="center">12.51</td>
-<td align="center">0.2663</td>
-<td align="center">5.698</td>
-<td align="center">0.3863</td>
-<td align="center">0.5516</td>
-<td align="center">0.1909</td>
-<td align="center">1.931</td>
+<td align="center">12.47</td>
+<td align="center">0.28</td>
+<td align="center">6.425</td>
+<td align="center">0.3917</td>
+<td align="center">0.5588</td>
 </tr>
 <tr class="even">
+<td align="center"><strong>KM</strong></td>
 <td align="center">KM</td>
-<td align="center">18.52</td>
-<td align="center">0.3042</td>
-<td align="center">6.626</td>
-<td align="center">0.4169</td>
-<td align="center">0.6535</td>
-<td align="center">0.1392</td>
-<td align="center">1.83</td>
+<td align="center">17.22</td>
+<td align="center">0.3162</td>
+<td align="center">6.495</td>
+<td align="center">0.3923</td>
+<td align="center">0.6113</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Table continues below</caption>
+<colgroup>
+<col width="23%" />
+<col width="10%" />
+<col width="18%" />
+<col width="14%" />
+<col width="9%" />
+<col width="11%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">c_index</th>
+<th align="center">davies_bouldin</th>
+<th align="center">mcclain_rao</th>
+<th align="center">sd_dis</th>
+<th align="center">ray_turi</th>
+<th align="center">g_plus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>HC_Euclidean</strong></td>
+<td align="center">0.202</td>
+<td align="center">1.591</td>
+<td align="center">0.7303</td>
+<td align="center">0.3595</td>
+<td align="center">0.954</td>
+<td align="center">0.03441</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>PAM_Euclidean</strong></td>
+<td align="center">0.1882</td>
+<td align="center">2.341</td>
+<td align="center">0.7881</td>
+<td align="center">0.6273</td>
+<td align="center">2.008</td>
+<td align="center">0.09865</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>DIANA_Euclidean</strong></td>
+<td align="center">0.1871</td>
+<td align="center">1.969</td>
+<td align="center">0.7822</td>
+<td align="center">0.4838</td>
+<td align="center">1.654</td>
+<td align="center">0.1084</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>KM</strong></td>
+<td align="center">0.1599</td>
+<td align="center">1.9</td>
+<td align="center">0.7685</td>
+<td align="center">0.4727</td>
+<td align="center">1.247</td>
+<td align="center">0.08003</td>
 </tr>
 </tbody>
 </table>
 <table>
 <colgroup>
-<col width="14%"></col>
-<col width="9%"></col>
-<col width="11%"></col>
-<col width="10%"></col>
-<col width="13%"></col>
-<col width="8%"></col>
-<col width="14%"></col>
-<col width="15%"></col>
+<col width="30%" />
+<col width="18%" />
+<col width="11%" />
+<col width="19%" />
+<col width="20%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th align="center">mcclain_rao</th>
-<th align="center">sd_dis</th>
-<th align="center">ray_turi</th>
-<th align="center">g_plus</th>
+<th align="center"> </th>
 <th align="center">silhouette</th>
 <th align="center">s_dbw</th>
 <th align="center">Compactness</th>
@@ -757,97 +608,85 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.7278</td>
-<td align="center">0.2666</td>
-<td align="center">0.5899</td>
-<td align="center">0.03044</td>
+<td align="center"><strong>HC_Euclidean</strong></td>
+<td align="center">0.1171</td>
 <td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">7.783</td>
-<td align="center">15.93</td>
+<td align="center">7.833</td>
+<td align="center">19.03</td>
 </tr>
 <tr class="even">
-<td align="center">0.782</td>
-<td align="center">0.4754</td>
-<td align="center">1.225</td>
-<td align="center">0.09328</td>
-<td align="center">0.08144</td>
+<td align="center"><strong>PAM_Euclidean</strong></td>
+<td align="center">0.08106</td>
 <td align="center">NA</td>
-<td align="center">6.875</td>
-<td align="center">72.87</td>
+<td align="center">6.831</td>
+<td align="center">65.74</td>
 </tr>
 <tr class="odd">
-<td align="center">0.7848</td>
-<td align="center">0.4673</td>
-<td align="center">1.685</td>
-<td align="center">0.11</td>
-<td align="center">0.02748</td>
+<td align="center"><strong>DIANA_Euclidean</strong></td>
+<td align="center">0.02616</td>
 <td align="center">NA</td>
-<td align="center">7.071</td>
-<td align="center">50.82</td>
+<td align="center">7.081</td>
+<td align="center">47.95</td>
 </tr>
 <tr class="even">
-<td align="center">0.7535</td>
-<td align="center">0.3884</td>
-<td align="center">0.9415</td>
-<td align="center">0.0705</td>
-<td align="center">0.1254</td>
+<td align="center"><strong>KM</strong></td>
+<td align="center">0.112</td>
 <td align="center">NA</td>
-<td align="center">6.651</td>
-<td align="center">59.53</td>
+<td align="center">6.704</td>
+<td align="center">62.96</td>
 </tr>
 </tbody>
 </table>
 <p>We see that the biclustering algorithm is the least ambiguous and also most well-clustered (high compactness and separability).</p>
 <p>Some algorithms perform too poorly to deserve membership in the cluster ensemble. We consider the relative ranks of each algorithm across all internal indices, and compute their sum. All algorithms below a certain quantile for the sum rank are trimmed (removed). By default this quantile is 75%.</p>
 <p>After trimming, we can optionally choose to reweigh the algorithms based on the internal index magnitudes. Of course, we take into account the direction of optimality (higher is better is lower is better). Algorithms reweighed are then fed into the consensus functions. This is done by replicating each algorithm by a scalar factor that is proportional to its weight. For example, if we have two algorithms A and B, and A is given a weight of 80% and B is given a weight of 20%, then we make 4 copies of A and 1 copy of B. To minimize computational time, the total number of copies out of all algorithms has an upper bound of 100. Without reweighing, each algorithm is given equal weight.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>ctrim &lt;-<span class="st"> </span><span class="kw">consensus_evaluate</span>(hgsc, CC, CC2, <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">reweigh =</span> <span class="ot">FALSE</span>, <span class="dt">n =</span> <span class="dv">2</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">str</span>(ctrim, <span class="dt">max.level =</span> <span class="dv">2</span>)</span>
-<span id="cb15-2"><a href="#cb15-2"></a><span class="co">#&gt; List of 5</span></span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="co">#&gt;  $ k       : int 3</span></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="co">#&gt;  $ pac     :&#39;data.frame&#39;:    2 obs. of  5 variables:</span></span>
-<span id="cb15-5"><a href="#cb15-5"></a><span class="co">#&gt;   ..$ k              : chr [1:2] &quot;3&quot; &quot;4&quot;</span></span>
-<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#&gt;   ..$ HC_Euclidean   : num [1:2] 0.487 0.432</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#&gt;   ..$ PAM_Euclidean  : num [1:2] 0.248 0.251</span></span>
-<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#&gt;   ..$ DIANA_Euclidean: num [1:2] 0.215 0.242</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a><span class="co">#&gt;   ..$ KM             : num [1:2] 0.122 0.131</span></span>
-<span id="cb15-10"><a href="#cb15-10"></a><span class="co">#&gt;  $ ii      :List of 2</span></span>
-<span id="cb15-11"><a href="#cb15-11"></a><span class="co">#&gt;   ..$ 3:&#39;data.frame&#39;:    4 obs. of  16 variables:</span></span>
-<span id="cb15-12"><a href="#cb15-12"></a><span class="co">#&gt;   ..$ 4:&#39;data.frame&#39;:    4 obs. of  16 variables:</span></span>
-<span id="cb15-13"><a href="#cb15-13"></a><span class="co">#&gt;  $ ei      : NULL</span></span>
-<span id="cb15-14"><a href="#cb15-14"></a><span class="co">#&gt;  $ trim.obj:List of 5</span></span>
-<span id="cb15-15"><a href="#cb15-15"></a><span class="co">#&gt;   ..$ alg.keep   : chr [1:2] &quot;HC_Euclidean&quot; &quot;KM&quot;</span></span>
-<span id="cb15-16"><a href="#cb15-16"></a><span class="co">#&gt;   ..$ alg.remove : chr [1:2] &quot;PAM_Euclidean&quot; &quot;DIANA_Euclidean&quot;</span></span>
-<span id="cb15-17"><a href="#cb15-17"></a><span class="co">#&gt;   ..$ rank.matrix:List of 1</span></span>
-<span id="cb15-18"><a href="#cb15-18"></a><span class="co">#&gt;   ..$ top.list   :List of 1</span></span>
-<span id="cb15-19"><a href="#cb15-19"></a><span class="co">#&gt;   ..$ E.new      :List of 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ctrim <span class="ot">&lt;-</span> <span class="fu">consensus_evaluate</span>(hgsc, CC, CC2, <span class="at">trim =</span> <span class="cn">TRUE</span>, <span class="at">reweigh =</span> <span class="cn">FALSE</span>, <span class="at">n =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ctrim, <span class="at">max.level =</span> <span class="dv">2</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 5</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ k       : int 4</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ pac     :&#39;data.frame&#39;:    2 obs. of  5 variables:</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ k              : chr [1:2] &quot;3&quot; &quot;4&quot;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ HC_Euclidean   : num [1:2] 0.134 0.397</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ PAM_Euclidean  : num [1:2] 0.458 0.451</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ DIANA_Euclidean: num [1:2] 0.248 0.233</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ KM             : num [1:2] 0.282 0.272</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ ii      :List of 2</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ 3:&#39;data.frame&#39;:    4 obs. of  16 variables:</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ 4:&#39;data.frame&#39;:    4 obs. of  16 variables:</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ ei      : NULL</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ trim.obj:List of 5</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ alg.keep   : chr [1:2] &quot;HC_Euclidean&quot; &quot;KM&quot;</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ alg.remove : chr [1:2] &quot;PAM_Euclidean&quot; &quot;DIANA_Euclidean&quot;</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ rank.matrix:List of 1</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ top.list   :List of 1</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ E.new      :List of 1</span></span></code></pre></div>
 <p>The return value shows which algorithms were kept, removed (if any), and the trimmed (and potentially reweighed) cluster ensemble.</p>
 </div>
 </div>
 <div id="significance-testing" class="section level2">
 <h2>Significance Testing</h2>
 <p>To test whether there are four statistically distinct clusters (k = 4) versus no clusters (k = 1) using the PAM algorithm, we run <code>sigclust</code> with 50 simulations and generate a p-value for this significance test.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb16-2"><a href="#cb16-2"></a>pam_<span class="dv">4</span> &lt;-<span class="st"> </span>ccomb_class2<span class="op">$</span><span class="st">`</span><span class="dt">4</span><span class="st">`</span>[, <span class="st">&quot;PAM_Euclidean&quot;</span>]</span>
-<span id="cb16-3"><a href="#cb16-3"></a>sig_obj &lt;-<span class="st"> </span><span class="kw">sigclust</span>(hgsc, <span class="dt">k =</span> <span class="dv">4</span>, <span class="dt">nsim =</span> <span class="dv">100</span>, <span class="dt">labflag =</span> <span class="dv">0</span>, <span class="dt">label =</span> pam_<span class="dv">4</span>)</span>
-<span id="cb16-4"><a href="#cb16-4"></a>co &lt;-<span class="st"> </span><span class="kw">capture.output</span>(<span class="kw">str</span>(sig_obj))</span>
-<span id="cb16-5"><a href="#cb16-5"></a><span class="kw">strwrap</span>(co, <span class="dt">width =</span> <span class="dv">80</span>)</span>
-<span id="cb16-6"><a href="#cb16-6"></a><span class="co">#&gt;  [1] &quot;Formal class &#39;sigclust&#39; [package \&quot;sigclust\&quot;] with 10 slots&quot;               </span></span>
-<span id="cb16-7"><a href="#cb16-7"></a><span class="co">#&gt;  [2] &quot;..@ raw.data : num [1:100, 1:50] -0.0107 -0.7107 0.8815 -1.0851 -0.9322 ...&quot;</span></span>
-<span id="cb16-8"><a href="#cb16-8"></a><span class="co">#&gt;  [3] &quot;.. ..- attr(*, \&quot;dimnames\&quot;)=List of 2&quot;                                     </span></span>
-<span id="cb16-9"><a href="#cb16-9"></a><span class="co">#&gt;  [4] &quot;.. .. ..$ : chr [1:100] \&quot;TCGA.04.1331_PRO.C5\&quot; \&quot;TCGA.04.1332_MES.C1\&quot;&quot;    </span></span>
-<span id="cb16-10"><a href="#cb16-10"></a><span class="co">#&gt;  [5] &quot;\&quot;TCGA.04.1336_DIF.C4\&quot; \&quot;TCGA.04.1337_MES.C1\&quot; ...&quot;                        </span></span>
-<span id="cb16-11"><a href="#cb16-11"></a><span class="co">#&gt;  [6] &quot;.. .. ..$ : chr [1:50] \&quot;ABAT\&quot; \&quot;ABHD2\&quot; \&quot;ACTB\&quot; \&quot;ACTR2\&quot; ...&quot;           </span></span>
-<span id="cb16-12"><a href="#cb16-12"></a><span class="co">#&gt;  [7] &quot;..@ veigval : num [1:50] 11.81 4.51 2.66 2.29 1.84 ...&quot;                     </span></span>
-<span id="cb16-13"><a href="#cb16-13"></a><span class="co">#&gt;  [8] &quot;..@ vsimeigval: num [1:50] 11.81 4.51 2.66 2.29 1.84 ...&quot;                   </span></span>
-<span id="cb16-14"><a href="#cb16-14"></a><span class="co">#&gt;  [9] &quot;..@ simbackvar: num 0.42&quot;                                                   </span></span>
-<span id="cb16-15"><a href="#cb16-15"></a><span class="co">#&gt; [10] &quot;..@ icovest : num 2&quot;                                                        </span></span>
-<span id="cb16-16"><a href="#cb16-16"></a><span class="co">#&gt; [11] &quot;..@ nsim : num 100&quot;                                                         </span></span>
-<span id="cb16-17"><a href="#cb16-17"></a><span class="co">#&gt; [12] &quot;..@ simcindex : num [1:100] 0.67 0.634 0.641 0.637 0.606 ...&quot;               </span></span>
-<span id="cb16-18"><a href="#cb16-18"></a><span class="co">#&gt; [13] &quot;..@ pval : num 0.14&quot;                                                        </span></span>
-<span id="cb16-19"><a href="#cb16-19"></a><span class="co">#&gt; [14] &quot;..@ pvalnorm : num 0.163&quot;                                                   </span></span>
-<span id="cb16-20"><a href="#cb16-20"></a><span class="co">#&gt; [15] &quot;..@ xcindex : num 0.63&quot;</span></span></code></pre></div>
-<p>The p-value is 0.14, indicating we do not have sufficient evidence to conclude there are four distinct clusters. Note that we did not use the full <code>hgsc</code> data set in this example, so the underlying biological mechanisms may not be fully captured.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>pam_4 <span class="ot">&lt;-</span> ccomb_class2<span class="sc">$</span><span class="st">`</span><span class="at">4</span><span class="st">`</span>[, <span class="st">&quot;PAM_Euclidean&quot;</span>]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>sig_obj <span class="ot">&lt;-</span> <span class="fu">sigclust</span>(hgsc, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">nsim =</span> <span class="dv">100</span>, <span class="at">labflag =</span> <span class="dv">0</span>, <span class="at">label =</span> pam_4)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>co <span class="ot">&lt;-</span> <span class="fu">capture.output</span>(<span class="fu">str</span>(sig_obj))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">strwrap</span>(co, <span class="at">width =</span> <span class="dv">80</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;Formal class &#39;sigclust&#39; [package \&quot;sigclust\&quot;] with 10 slots&quot;               </span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [2] &quot;..@ raw.data : num [1:100, 1:50] -0.0107 -0.7107 0.8815 -1.0851 -0.9322 ...&quot;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;.. ..- attr(*, \&quot;dimnames\&quot;)=List of 2&quot;                                     </span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;.. .. ..$ : chr [1:100] \&quot;TCGA.04.1331_PRO.C5\&quot; \&quot;TCGA.04.1332_MES.C1\&quot;&quot;    </span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;\&quot;TCGA.04.1336_DIF.C4\&quot; \&quot;TCGA.04.1337_MES.C1\&quot; ...&quot;                        </span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [6] &quot;.. .. ..$ : chr [1:50] \&quot;ABAT\&quot; \&quot;ABHD2\&quot; \&quot;ACTB\&quot; \&quot;ACTR2\&quot; ...&quot;           </span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;..@ veigval : num [1:50] 11.81 4.51 2.66 2.29 1.84 ...&quot;                     </span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [8] &quot;..@ vsimeigval: num [1:50] 11.81 4.51 2.66 2.29 1.84 ...&quot;                   </span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;..@ simbackvar: num 0.42&quot;                                                   </span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [10] &quot;..@ icovest : num 2&quot;                                                        </span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;..@ nsim : num 100&quot;                                                         </span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [12] &quot;..@ simcindex : num [1:100] 0.624 0.692 0.664 0.672 0.637 ...&quot;              </span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] &quot;..@ pval : num 0.23&quot;                                                        </span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [14] &quot;..@ pvalnorm : num 0.206&quot;                                                   </span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15] &quot;..@ xcindex : num 0.63&quot;</span></span></code></pre></div>
+<p>The p-value is 0.23, indicating we do not have sufficient evidence to conclude there are four distinct clusters. Note that we did not use the full <code>hgsc</code> data set in this example, so the underlying biological mechanisms may not be fully captured.</p>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
