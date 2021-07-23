@@ -1,3 +1,7 @@
+# diceR 1.1.0
+
+* Reinstate `blockcluster` package as it is under active maintenance again
+
 # diceR 1.0.4
 
 * Suppress new names messages from transformed NMF data

@@ -1,7 +1,7 @@
 Type: Package
 Package: diceR
 Title: Diverse Cluster Ensemble in R
-Version: 1.0.4
+Version: 1.1.0
 Authors@R: 
     c(person(given = "Derek",
              family = "Chiu",
@@ -10,7 +10,7 @@ Authors@R:
       person(given = "Aline",
              family = "Talhouk",
              role = "aut",
-             email = "atalhouk@bccrc.ca"),
+             email = "a.talhouk@ubc.ca"),
       person(given = "Johnson",
              family = "Liu",
              role = c("ctb", "com"),
@@ -32,19 +32,19 @@ Imports: abind, assertthat, class, clue, clusterCrit, clValid, dplyr
         (>= 0.7.5), ggplot2, infotheo, klaR, magrittr, mclust, methods,
         NMF, purrr (>= 0.2.3), RankAggreg, Rcpp, stringr, tidyr,
         yardstick
-Suggests: apcluster, cluster, covr, dbscan, e1071, kernlab, knitr,
-        kohonen, pander, poLCA, progress, RColorBrewer, rmarkdown,
-        Rtsne, sigclust, testthat
+Suggests: apcluster, blockcluster, cluster, covr, dbscan, e1071,
+        kernlab, knitr, kohonen, pander, poLCA, progress, RColorBrewer,
+        rmarkdown, Rtsne, sigclust, testthat
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 NeedsCompilation: yes
-Packaged: 2021-06-03 22:03:52 UTC; Derek
+Packaged: 2021-07-23 19:07:44 UTC; Derek
 Author: Derek Chiu [aut, cre],
   Aline Talhouk [aut],
   Johnson Liu [ctb, com]
 Maintainer: Derek Chiu <dchiu@bccrc.ca>
 Repository: CRAN
-Date/Publication: 2021-06-04 08:30:02 UTC
+Date/Publication: 2021-07-23 19:30:01 UTC

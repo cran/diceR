@@ -31,7 +31,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Aline Talhouk \email{atalhouk@bccrc.ca}
+  \item Aline Talhouk \email{a.talhouk@ubc.ca}
 }
 
 Other contributors:
