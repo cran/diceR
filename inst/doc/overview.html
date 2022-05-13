@@ -14,7 +14,19 @@
 
 <title>Cluster Analysis using diceR</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -24,6 +36,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -125,7 +138,187 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -137,13 +330,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<h1 class="title toc-ignore">Cluster Analysis using <code>diceR</code></h1>
+<h1 class="title toc-ignore">Cluster Analysis using
+<code>diceR</code></h1>
 
 
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Cluster analysis is a way of “slicing and dicing” data to allow the grouping together of similar entities and the separation of dissimilar ones. Issues arise due to the existence of a diverse number of clustering algorithms, each with different techniques and inputs, and with no universally optimal methodology. Thus, a framework for cluster analysis and validation methods are needed. Our approach is to use cluster ensembles from a diverse set of algorithms. This ensures that the data has been considered from several angles and using a variety of methods. We have currently implemented about 15 clustering algorithms, and we provide a simple framework to add additional algorithms (see <code>example(&quot;consensus_cluster&quot;)</code>). Although results are dependent on the subset of algorithms chosen for the ensemble, the intent is that we capture a variety of clustering outputs and select those that are most consistent with the data.</p>
+<p>Cluster analysis is a way of “slicing and dicing” data to allow the
+grouping together of similar entities and the separation of dissimilar
+ones. Issues arise due to the existence of a diverse number of
+clustering algorithms, each with different techniques and inputs, and
+with no universally optimal methodology. Thus, a framework for cluster
+analysis and validation methods are needed. Our approach is to use
+cluster ensembles from a diverse set of algorithms. This ensures that
+the data has been considered from several angles and using a variety of
+methods. We have currently implemented about 15 clustering algorithms,
+and we provide a simple framework to add additional algorithms (see
+<code>example(&quot;consensus_cluster&quot;)</code>). Although results are
+dependent on the subset of algorithms chosen for the ensemble, the
+intent is that we capture a variety of clustering outputs and select
+those that are most consistent with the data.</p>
 <p>You can install <code>diceR</code> from CRAN with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;diceR&quot;</span>)</span></code></pre></div>
 <p>Or get the latest development version from GitHub:</p>
@@ -155,44 +362,90 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pander)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hgsc)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>hgsc <span class="ot">&lt;-</span> hgsc[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>]</span></code></pre></div>
-<p>We load an excerpt of an expression data set from TCGA of 100 high grade serous carcinoma samples measured on 50 genes.</p>
+<p>We load an excerpt of an expression data set from TCGA of 100 high
+grade serous carcinoma samples measured on 50 genes.</p>
 </div>
 <div id="clustering-algorithms" class="section level2">
 <h2>Clustering Algorithms</h2>
 <p>The list of clustering algorithms available for use are:</p>
 <ul>
-<li><code>&quot;nmf&quot;</code>: Nonnegative Matrix Factorization (using Kullback-Leibler Divergence or Euclidean distance)</li>
+<li><code>&quot;nmf&quot;</code>: Nonnegative Matrix Factorization (using
+Kullback-Leibler Divergence or Euclidean distance)</li>
 <li><code>&quot;hc&quot;</code>: Hierarchical Clustering</li>
 <li><code>&quot;diana&quot;</code>: DIvisive ANAlysis Clustering</li>
 <li><code>&quot;km&quot;</code>: K-Means Clustering</li>
 <li><code>&quot;pam&quot;</code>: Partition Around Medoids</li>
 <li><code>&quot;ap&quot;</code>: Affinity Propagation</li>
-<li><code>&quot;sc&quot;</code>: Spectral Clustering using Radial-Basis kernel function</li>
-<li><code>&quot;gmm&quot;</code>: Gaussian Mixture Model using Bayesian Information Criterion on EM algorithm</li>
+<li><code>&quot;sc&quot;</code>: Spectral Clustering using Radial-Basis kernel
+function</li>
+<li><code>&quot;gmm&quot;</code>: Gaussian Mixture Model using Bayesian
+Information Criterion on EM algorithm</li>
 <li><code>&quot;block&quot;</code>: Biclustering using a latent block model</li>
-<li><code>&quot;som&quot;</code>: Self-Organizing Map (SOM) with Hierarchical Clustering</li>
+<li><code>&quot;som&quot;</code>: Self-Organizing Map (SOM) with Hierarchical
+Clustering</li>
 <li><code>&quot;cmeans&quot;</code>: Fuzzy C-Means Clustering</li>
-<li><code>&quot;hdbscan&quot;</code>: Hierarchical Density-based Spatial Clustering of Applications with Noise (HDBSCAN)</li>
+<li><code>&quot;hdbscan&quot;</code>: Hierarchical Density-based Spatial
+Clustering of Applications with Noise (HDBSCAN)</li>
 </ul>
-<p>They are passed as a character vector into the <code>algorithms</code> parameter of <code>consensus_cluster()</code>. Note that the list continues to evolve as we implement more algorithms into <code>diceR</code>.</p>
+<p>They are passed as a character vector into the
+<code>algorithms</code> parameter of <code>consensus_cluster()</code>.
+Note that the list continues to evolve as we implement more algorithms
+into <code>diceR</code>.</p>
 <div id="cluster-models" class="section level3">
 <h3>Cluster Models</h3>
-<p>The clustering algorithms can be categorized under different models or paradigms based on how the clusters are formed. We provide a brief overview to guide the initial selection of algorithms since no single algorithm works for every data model.<sup>1</sup></p>
+<p>The clustering algorithms can be categorized under different models
+or paradigms based on how the clusters are formed. We provide a brief
+overview to guide the initial selection of algorithms since no single
+algorithm works for every data model.<sup>1</sup></p>
 <ul>
-<li>Connectivity Models: <code>&quot;hc&quot;</code> and <code>&quot;diana&quot;</code> are hierarchical models based on connecting objects using a particular similarity or distance metric.</li>
-<li>Centroid Models: <code>&quot;km&quot;</code> and <code>&quot;pam&quot;</code> uses initial cluster centers calculated based on the mean of the objects, where <code>&quot;pam&quot;</code> restricts the centroid to be an actual object. These models are good for modeling data that produces spherical clusters. <code>&quot;ap&quot;</code> is similar to <code>&quot;pam&quot;</code> because it calculates “exemplars” (like centroids) of the data but is advantageous because initialization of k (number of clusters) is not required.<sup>2</sup> <code>&quot;cmeans&quot;</code> is similar to <code>&quot;km&quot;</code> except that points can be assigned to more than one cluster.</li>
-<li>Distribution Models: <code>&quot;gmm&quot;</code> assumes a Gaussian mixture model used by the EM algorithm for clustering.<sup>3</sup> The gain in model complexity is traded with utility since the assumption is quite strong.</li>
-<li>Density Models: <code>&quot;hdbscan&quot;</code> runs hierarchical clustering on the DBSCAN result.<sup>4,5</sup> These models assume that each cluster has high density, so when there are overlapping regions, the algorithms may not be able to separate objects that well.</li>
-<li>Subspace Models: <code>&quot;block&quot;</code> clusters both samples and features, so is useful when you want to associate these pairs of cluster entities (e.g. are there functional gene groups that associate with sample subtypes?). Our implementation uses the latent block model.<sup>6</sup></li>
-<li>Neural Models: our implementation of <code>&quot;som&quot;</code> reduces the data to a two-dimensional subspace using a neural network model, before performing hierarchical clustering.<sup>7</sup> A lot of the noise is phased out and cluster stability can be improved from using <code>&quot;hc&quot;</code> alone.</li>
-<li>Spectral Clustering: Similar to <code>&quot;som&quot;</code>, <code>&quot;sc&quot;</code> also performs dimensionality reduction before clustering, but instead uses eigenvectors of a kernel matrix.<sup>8</sup> We use a radial-basis kernel function in the package.</li>
-<li>Non-negative Matrix Factorization: the computational complexity with <code>&quot;nmf&quot;</code> is doubled compared to other algorithms because data manipulations need to be performed to transform the input data into a non-negative matrix. Otherwise, NMF has a natural clustering result that can be used to group together samples and/or features.<sup>9</sup></li>
+<li>Connectivity Models: <code>&quot;hc&quot;</code> and <code>&quot;diana&quot;</code> are
+hierarchical models based on connecting objects using a particular
+similarity or distance metric.</li>
+<li>Centroid Models: <code>&quot;km&quot;</code> and <code>&quot;pam&quot;</code> uses
+initial cluster centers calculated based on the mean of the objects,
+where <code>&quot;pam&quot;</code> restricts the centroid to be an actual object.
+These models are good for modeling data that produces spherical
+clusters. <code>&quot;ap&quot;</code> is similar to <code>&quot;pam&quot;</code> because it
+calculates “exemplars” (like centroids) of the data but is advantageous
+because initialization of k (number of clusters) is not
+required.<sup>2</sup> <code>&quot;cmeans&quot;</code> is similar to
+<code>&quot;km&quot;</code> except that points can be assigned to more than one
+cluster.</li>
+<li>Distribution Models: <code>&quot;gmm&quot;</code> assumes a Gaussian mixture
+model used by the EM algorithm for clustering.<sup>3</sup> The gain in
+model complexity is traded with utility since the assumption is quite
+strong.</li>
+<li>Density Models: <code>&quot;hdbscan&quot;</code> runs hierarchical clustering
+on the DBSCAN result.<sup>4,5</sup> These models assume that each
+cluster has high density, so when there are overlapping regions, the
+algorithms may not be able to separate objects that well.</li>
+<li>Subspace Models: <code>&quot;block&quot;</code> clusters both samples and
+features, so is useful when you want to associate these pairs of cluster
+entities (e.g. are there functional gene groups that associate with
+sample subtypes?). Our implementation uses the latent block
+model.<sup>6</sup></li>
+<li>Neural Models: our implementation of <code>&quot;som&quot;</code> reduces the
+data to a two-dimensional subspace using a neural network model, before
+performing hierarchical clustering.<sup>7</sup> A lot of the noise is
+phased out and cluster stability can be improved from using
+<code>&quot;hc&quot;</code> alone.</li>
+<li>Spectral Clustering: Similar to <code>&quot;som&quot;</code>,
+<code>&quot;sc&quot;</code> also performs dimensionality reduction before
+clustering, but instead uses eigenvectors of a kernel
+matrix.<sup>8</sup> We use a radial-basis kernel function in the
+package.</li>
+<li>Non-negative Matrix Factorization: the computational complexity with
+<code>&quot;nmf&quot;</code> is doubled compared to other algorithms because data
+manipulations need to be performed to transform the input data into a
+non-negative matrix. Otherwise, NMF has a natural clustering result that
+can be used to group together samples and/or features.<sup>9</sup></li>
 </ul>
 </div>
 </div>
 <div id="distance-measures" class="section level2">
 <h2>Distance Measures</h2>
-<p>The list of distance measures available for use are those found in <code>stats::dist</code> and the spearman distance:</p>
+<p>The list of distance measures available for use are those found in
+<code>stats::dist</code> and the spearman distance:</p>
 <ul>
 <li><code>&quot;euclidean&quot;</code>: see <code>stats::dist</code></li>
 <li><code>&quot;maximum&quot;</code>: see <code>stats::dist</code></li>
@@ -200,39 +453,68 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><code>&quot;canberra&quot;</code>: see <code>stats::dist</code></li>
 <li><code>&quot;binary&quot;</code>: see <code>stats::dist</code></li>
 <li><code>&quot;minkowski&quot;</code>: see <code>stats::dist</code></li>
-<li><code>&quot;spearman&quot;</code>: based on <code>bioDist::spearman.dist</code></li>
+<li><code>&quot;spearman&quot;</code>: based on
+<code>bioDist::spearman.dist</code></li>
 </ul>
-<p>They are passed as a character vector into the <code>distance</code> parameter of <code>consensus_cluster()</code>. Only the <code>&quot;hc&quot;</code>, <code>&quot;diana&quot;</code>, <code>&quot;pam&quot;</code> algorithms use the <code>distance</code> parameter.</p>
+<p>They are passed as a character vector into the <code>distance</code>
+parameter of <code>consensus_cluster()</code>. Only the
+<code>&quot;hc&quot;</code>, <code>&quot;diana&quot;</code>, <code>&quot;pam&quot;</code> algorithms
+use the <code>distance</code> parameter.</p>
 </div>
 <div id="validity-indices" class="section level2">
 <h2>Validity Indices</h2>
 <div id="internal" class="section level3">
 <h3>Internal</h3>
-<p>The list of internal validity indices used for evaluating clusters are:</p>
+<p>The list of internal validity indices used for evaluating clusters
+are:</p>
 <ul>
-<li>“C_index”, “Calinski_Harabasz”, “Davies_Bouldin”, “Dunn”, “McClain_Rao”, “PBM”, “SD_Dis”, “Ray_Turi”, “Tau”, “Gamma”, “G_plus”, “Silhouette”, “S_Dbw” from <code>clusterCrit::intCriteria</code></li>
+<li>“C_index”, “Calinski_Harabasz”, “Davies_Bouldin”, “Dunn”,
+“McClain_Rao”, “PBM”, “SD_Dis”, “Ray_Turi”, “Tau”, “Gamma”, “G_plus”,
+“Silhouette”, “S_Dbw” from <code>clusterCrit::intCriteria</code></li>
 <li>“Compactness” from the <code>LinkCluE</code> package</li>
 <li>“Connectivity” from <code>clValid::connectivity</code></li>
 </ul>
 </div>
 <div id="external" class="section level3">
 <h3>External</h3>
-<p>The list of external validity indices used for evaluating clusters are:</p>
+<p>The list of external validity indices used for evaluating clusters
+are:</p>
 <ul>
-<li>“Hubert”, “Jaccard”, “McNemar”, “Precision”, “Rand”, “Recall” from <code>clusterCrit::extCriteria</code></li>
+<li>“Hubert”, “Jaccard”, “McNemar”, “Precision”, “Rand”, “Recall” from
+<code>clusterCrit::extCriteria</code></li>
 <li>“NMI” calculated using <code>infotheo::entropy</code></li>
-<li>Overall confusion matrix statistics from <code>caret::confusionMatrix</code>: “Overall Accuracy”, “Cohen’s kappa”, “No Information Rate”, “P-Value [Acc &gt; NIR]”</li>
-<li>Averaged class-specific confusion matrix statistics: “Sensitivity”, “Specificity”, “PPV”, “NPV”, “Detection Rate”, “Accuracy”, “Balanced Accuracy”</li>
+<li>Overall confusion matrix statistics from
+<code>caret::confusionMatrix</code>: “Overall Accuracy”, “Cohen’s
+kappa”, “No Information Rate”, “P-Value [Acc &gt; NIR]”</li>
+<li>Averaged class-specific confusion matrix statistics: “Sensitivity”,
+“Specificity”, “PPV”, “NPV”, “Detection Rate”, “Accuracy”, “Balanced
+Accuracy”</li>
 </ul>
 </div>
 </div>
 <div id="consensus-clustering" class="section level2">
 <h2>Consensus Clustering</h2>
-<p>When Monti et al. (2003) first introduced consensus clustering, the idea was to use one clustering algorithm on bootstrapped subsamples of the data. We implement some extensions where a consensus is reached across subsamples <em>and</em> across algorithms. The final cluster assignment is then computed using statistical transformations on the ensemble cluster.</p>
-<p>The base function of this package is <code>consensus_cluster()</code>, which outputs cluster assignments across subsamples and algorithms, for different k (number of clusters). For example, let’s say we were interested in clustering the <code>hgsc</code> data into 3 or 4 clusters, using 80% resampling on 5 replicates, for these clustering algorithms: Hierarchical Clustering, PAM, and DIvisive ANAlysis Clustering (DIANA). Euclidean distance is used for all algorithms.</p>
+<p>When Monti et al. (2003) first introduced consensus clustering, the
+idea was to use one clustering algorithm on bootstrapped subsamples of
+the data. We implement some extensions where a consensus is reached
+across subsamples <em>and</em> across algorithms. The final cluster
+assignment is then computed using statistical transformations on the
+ensemble cluster.</p>
+<p>The base function of this package is
+<code>consensus_cluster()</code>, which outputs cluster assignments
+across subsamples and algorithms, for different k (number of clusters).
+For example, let’s say we were interested in clustering the
+<code>hgsc</code> data into 3 or 4 clusters, using 80% resampling on 5
+replicates, for these clustering algorithms: Hierarchical Clustering,
+PAM, and DIvisive ANAlysis Clustering (DIANA). Euclidean distance is
+used for all algorithms.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>CC <span class="ot">&lt;-</span> <span class="fu">consensus_cluster</span>(hgsc, <span class="at">nk =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">p.item =</span> <span class="fl">0.8</span>, <span class="at">reps =</span> <span class="dv">5</span>,</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">algorithms =</span> <span class="fu">c</span>(<span class="st">&quot;hc&quot;</span>, <span class="st">&quot;pam&quot;</span>, <span class="st">&quot;diana&quot;</span>))</span></code></pre></div>
-<p>The output is a 4-dimensional array: rows are samples, columns are different bootstrap subsample replicates, slices are algorithms, and each “box” (4th dimension) is for a different k. Below are the first few cluster assignments for each replicate in the DIANA algorithm for k = 3.</p>
+<p>The output is a 4-dimensional array: rows are samples, columns are
+different bootstrap subsample replicates, slices are algorithms, and
+each “box” (4th dimension) is for a different k. Below are the first few
+cluster assignments for each replicate in the DIANA algorithm for k =
+3.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>co <span class="ot">&lt;-</span> <span class="fu">capture.output</span>(<span class="fu">str</span>(CC))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">strwrap</span>(co, <span class="at">width =</span> <span class="dv">80</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;int [1:100, 1:5, 1:3, 1:2] 1 1 NA NA NA 1 1 NA 1 NA ...&quot;               </span></span>
@@ -313,18 +595,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
-<p>Note the unavoidable presence of <code>NA</code>s because we used 80% subsampling. This can be problematic in certain downstream ensemble methods, so we can impute missing values using K-Nearest Neighbours beforehand. There might still be <code>NA</code>s after KNN because of how the decision threshold was set. The remaining missing values can be imputed using majority voting.</p>
+<p>Note the unavoidable presence of <code>NA</code>s because we used 80%
+subsampling. This can be problematic in certain downstream ensemble
+methods, so we can impute missing values using K-Nearest Neighbours
+beforehand. There might still be <code>NA</code>s after KNN because of
+how the decision threshold was set. The remaining missing values can be
+imputed using majority voting.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>CC <span class="ot">&lt;-</span> <span class="fu">apply</span>(CC, <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, impute_knn, <span class="at">data =</span> hgsc, <span class="at">seed =</span> <span class="dv">1</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>CC_imputed <span class="ot">&lt;-</span> <span class="fu">impute_missing</span>(CC, hgsc, <span class="at">nk =</span> <span class="dv">4</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(CC))</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(CC_imputed))</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span></code></pre></div>
-<p>We can carry on the analysis using either <code>CC</code> or <code>CC_imputed</code>.</p>
+<p>We can carry on the analysis using either <code>CC</code> or
+<code>CC_imputed</code>.</p>
 </div>
 <div id="consensus-functions" class="section level2">
 <h2>Consensus Functions</h2>
-<p><code>diceR</code> provides functions for retrieving useful summaries and other results for consensus clustering.</p>
+<p><code>diceR</code> provides functions for retrieving useful summaries
+and other results for consensus clustering.</p>
 <ul>
 <li><a href="#compute-consensus-matrix-with-consensus_matrix"><code>consensus_matrix()</code></a></li>
 <li><a href="#combine-consensus-summaries-with-consensus_combine"><code>consensus_combine()</code></a></li>
@@ -332,17 +621,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul>
 <div id="compute-consensus-matrix-with-consensus_matrix" class="section level3">
 <h3>Compute consensus matrix with <code>consensus_matrix()</code></h3>
-<p>The consensus matrix is an n by n matrix, where n is the number of samples. Each element is a real-valued number between 0 and 1 inclusive, representing the proportion of times that two samples were clustered together out of the times that the same samples were chosen in the bootstrap resampling. The diagonal are all one’s. Suppose we wanted to compute the consensus matrix for PAM, k = 4, and visualize using <code>graph_heatmap()</code>:</p>
+<p>The consensus matrix is an n by n matrix, where n is the number of
+samples. Each element is a real-valued number between 0 and 1 inclusive,
+representing the proportion of times that two samples were clustered
+together out of the times that the same samples were chosen in the
+bootstrap resampling. The diagonal are all one’s. Suppose we wanted to
+compute the consensus matrix for PAM, k = 4, and visualize using
+<code>graph_heatmap()</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pam<span class="fl">.4</span> <span class="ot">&lt;-</span> CC[, , <span class="st">&quot;PAM_Euclidean&quot;</span>, <span class="st">&quot;4&quot;</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>cm <span class="ot">&lt;-</span> <span class="fu">consensus_matrix</span>(pam<span class="fl">.4</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(cm)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 100 100</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>hm <span class="ot">&lt;-</span> <span class="fu">graph_heatmap</span>(pam<span class="fl">.4</span>)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAGwCAMAAAB2PiqAAAABC1BMVEUAAAAAAEgAAHQASEgASHQASJwAdHQAdL8BRjYBZ1UBfH8ki65IAABIAEhIAHRISABISHRISJxIdHRIdJxIdL9InJxInL9InN9RnchmwqV0AAB0AEh0SAB0SEh0SJx0dEh0dHR0nJx0nL90nN90v790v990v/+DsdSNoMucSACcSEicSHScdACcdEicnHScv9+c37+c39+c3/+0w96/dAC/dEi/nEi/nHS/v3S/v5y/35y/37+/39+/3/+//7+//9+////W1OjfnEjfnHTfv3Tfv5zfv7/f35zf37/f39/f3//f/7/f/9/f///nisPu5PH8jWL/v3T/35z/37//39//9/v//7///9////83GobjAAAACXBIWXMAAA7DAAAOwwHHb6hkAAASgElEQVR4nO3dD3/bRh2A8UvaENg8ttFBSih0DJoRoNtI08IYgc7r+J8Vp1vs9/9K0OnPSWfdSSf9pOgsP88HVsdWrLPvG0l2HFttiASpqQdAux2ASBSASBSASBSASBSASBSASBSASBSASBSASBSASBSASBSASBSASNTggG5Ple7gg2v91c1CHb7Mzz1J/l0ml1xsL6uyZba7WRy+1P/Pvlq5F9pe95nr3HKVX/88GcCDq243KST3Ddx8+7wYUHlL5tVYgJQ61l8l92c6p/rco4TU5QSALstVPs9WV53igXLfwPW5AlDHsklcv0jvx/X5weNUkr5/kztQ/2MDckx4kX2X9wa0Kle5UgdPkq3QIp3qYXPfwAqguTYSoPyfm8XRP1IGyW7kcXLGSn3v1A0oO5kpebVQ6sF1ZQv01ULd/6PKTx38Kll8rbclyTLJtz15mp4yV5IouVjlW7azdA6LKU1O6r3MZpnuw24eKXX/0031Kt7oHdwTvUi+HsdllYGWi2/fwHx4et3q8K+nB58sDj9Pb00+vqHv9Akbdwu0VMfZD2Fy/36SzN5S/bgd0DKd+6NrA2hp9nOX6YmTTX7i2OwEj82V5JNkAFVWebOorDtf5EnlKvJTZxuzHsdl5UDLxTfbNzAfXgFI35z0B+lSHf4tVzyXRj0GSvEs9ank/v3s9Oi/58l/XcdAJ/a8nKRzXQBKzjjWP8zpV1eb7KzkxFfZwkdX68t895Z89cuFPT/JNvA/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" style="display: block; margin: auto;" /></p>
 </div>
 <div id="combine-consensus-summaries-with-consensus_combine" class="section level3">
-<h3>Combine consensus summaries with <code>consensus_combine()</code></h3>
-<p>If we wish to separately extract consensus matrices and consensus classes for every algorithm, <code>consensus_combine()</code> is a convenient wrapper to do so. Setting <code>element = &quot;matrix&quot;</code> returns a list of consensus matrices. On the other hand, setting <code>element = &quot;class&quot;</code> returns a matrix with rows as samples, and columns as clustering assignments for each algorithm.</p>
+<h3>Combine consensus summaries with
+<code>consensus_combine()</code></h3>
+<p>If we wish to separately extract consensus matrices and consensus
+classes for every algorithm, <code>consensus_combine()</code> is a
+convenient wrapper to do so. Setting <code>element = &quot;matrix&quot;</code>
+returns a list of consensus matrices. On the other hand, setting
+<code>element = &quot;class&quot;</code> returns a matrix with rows as samples,
+and columns as clustering assignments for each algorithm.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ccomb_matrix <span class="ot">&lt;-</span> <span class="fu">consensus_combine</span>(CC, <span class="at">element =</span> <span class="st">&quot;matrix&quot;</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>ccomb_class <span class="ot">&lt;-</span> <span class="fu">consensus_combine</span>(CC, <span class="at">element =</span> <span class="st">&quot;class&quot;</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ccomb_matrix, <span class="at">max.level =</span> <span class="dv">2</span>)</span>
@@ -402,7 +703,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
-<p>One can feed in <code>ccomb_class</code> (instead of <code>CC</code>) into <code>consensus_matrix()</code> to obtain a consensus matrix across subsamples and algorithms (and k).</p>
+<p>One can feed in <code>ccomb_class</code> (instead of <code>CC</code>)
+into <code>consensus_matrix()</code> to obtain a consensus matrix across
+subsamples and algorithms (and k).</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># consensus matrix across subsamples and algorithms within k = 3</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>cm_k3 <span class="ot">&lt;-</span> <span class="fu">consensus_matrix</span>(ccomb_class<span class="sc">$</span><span class="st">`</span><span class="at">3</span><span class="st">`</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -411,7 +714,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># consensus matrix across subsamples and algorithms and k</span></span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>cm_all <span class="ot">&lt;-</span> <span class="fu">consensus_matrix</span>(ccomb_class)</span></code></pre></div>
-<p>A situation might also arise where we initially decided on using 3 clustering algorithms for the ensemble, but later wish to add additional algorithms for analysis. <code>consensus_combine()</code> takes in any number of ensemble objects (e.g. <code>CC</code> and <code>CC2</code>) and combines the results.</p>
+<p>A situation might also arise where we initially decided on using 3
+clustering algorithms for the ensemble, but later wish to add additional
+algorithms for analysis. <code>consensus_combine()</code> takes in any
+number of ensemble objects (e.g. <code>CC</code> and <code>CC2</code>)
+and combines the results.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>CC2 <span class="ot">&lt;-</span> <span class="fu">consensus_cluster</span>(hgsc, <span class="at">nk =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">p.item =</span> <span class="fl">0.8</span>, <span class="at">reps =</span> <span class="dv">5</span>,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">algorithms =</span> <span class="st">&quot;km&quot;</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ccomb_class2 <span class="ot">&lt;-</span> <span class="fu">consensus_combine</span>(CC, CC2, <span class="at">element =</span> <span class="st">&quot;class&quot;</span>)</span></code></pre></div>
@@ -472,8 +779,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </table>
 </div>
 <div id="evaluate-trim-and-reweigh-algorithms-with-consensus_evaluate" class="section level3">
-<h3>Evaluate, trim, and reweigh algorithms with <code>consensus_evaluate()</code></h3>
-<p>Internal cluster validation indices assess the performance of results by taking into account the compactness and separability of the clusters. We choose a variety of indices on which to compare the collection of clustering algorithms. We use the PAC (Proportion of Ambiguous Clusters), the proportion of entries in a consensus matrix that are strictly between <code>lower</code> (defaults to 0) and <code>upper</code> (defaults to 1), to give a measure of cluster stability. In addition, if no reference class is provided, we calculate the average PAC across algorithms within each <code>k</code>, and choose the <code>k</code> with the greatest average PAC. If there <em>is</em> a reference class, <code>k</code> is the number of distinct classes in the reference.</p>
+<h3>Evaluate, trim, and reweigh algorithms with
+<code>consensus_evaluate()</code></h3>
+<p>Internal cluster validation indices assess the performance of results
+by taking into account the compactness and separability of the clusters.
+We choose a variety of indices on which to compare the collection of
+clustering algorithms. We use the PAC (Proportion of Ambiguous
+Clusters), the proportion of entries in a consensus matrix that are
+strictly between <code>lower</code> (defaults to 0) and
+<code>upper</code> (defaults to 1), to give a measure of cluster
+stability. In addition, if no reference class is provided, we calculate
+the average PAC across algorithms within each <code>k</code>, and choose
+the <code>k</code> with the greatest average PAC. If there <em>is</em> a
+reference class, <code>k</code> is the number of distinct classes in the
+reference.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ccomp <span class="ot">&lt;-</span> <span class="fu">consensus_evaluate</span>(hgsc, CC, CC2, <span class="at">plot =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <table style="width:100%;">
 <caption>Internal Indices for k = 4 (continued below)</caption>
@@ -645,9 +964,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
-<p>We see that the biclustering algorithm is the least ambiguous and also most well-clustered (high compactness and separability).</p>
-<p>Some algorithms perform too poorly to deserve membership in the cluster ensemble. We consider the relative ranks of each algorithm across all internal indices, and compute their sum. All algorithms below a certain quantile for the sum rank are trimmed (removed). By default this quantile is 75%.</p>
-<p>After trimming, we can optionally choose to reweigh the algorithms based on the internal index magnitudes. Of course, we take into account the direction of optimality (higher is better is lower is better). Algorithms reweighed are then fed into the consensus functions. This is done by replicating each algorithm by a scalar factor that is proportional to its weight. For example, if we have two algorithms A and B, and A is given a weight of 80% and B is given a weight of 20%, then we make 4 copies of A and 1 copy of B. To minimize computational time, the total number of copies out of all algorithms has an upper bound of 100. Without reweighing, each algorithm is given equal weight.</p>
+<p>We see that the biclustering algorithm is the least ambiguous and
+also most well-clustered (high compactness and separability).</p>
+<p>Some algorithms perform too poorly to deserve membership in the
+cluster ensemble. We consider the relative ranks of each algorithm
+across all internal indices, and compute their sum. All algorithms below
+a certain quantile for the sum rank are trimmed (removed). By default
+this quantile is 75%.</p>
+<p>After trimming, we can optionally choose to reweigh the algorithms
+based on the internal index magnitudes. Of course, we take into account
+the direction of optimality (higher is better is lower is better).
+Algorithms reweighed are then fed into the consensus functions. This is
+done by replicating each algorithm by a scalar factor that is
+proportional to its weight. For example, if we have two algorithms A and
+B, and A is given a weight of 80% and B is given a weight of 20%, then
+we make 4 copies of A and 1 copy of B. To minimize computational time,
+the total number of copies out of all algorithms has an upper bound of
+100. Without reweighing, each algorithm is given equal weight.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ctrim <span class="ot">&lt;-</span> <span class="fu">consensus_evaluate</span>(hgsc, CC, CC2, <span class="at">trim =</span> <span class="cn">TRUE</span>, <span class="at">reweigh =</span> <span class="cn">FALSE</span>, <span class="at">n =</span> <span class="dv">2</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ctrim, <span class="at">max.level =</span> <span class="dv">2</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 5</span></span>
@@ -668,12 +1001,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ rank.matrix:List of 1</span></span>
 <span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ top.list   :List of 1</span></span>
 <span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ E.new      :List of 1</span></span></code></pre></div>
-<p>The return value shows which algorithms were kept, removed (if any), and the trimmed (and potentially reweighed) cluster ensemble.</p>
+<p>The return value shows which algorithms were kept, removed (if any),
+and the trimmed (and potentially reweighed) cluster ensemble.</p>
 </div>
 </div>
 <div id="significance-testing" class="section level2">
 <h2>Significance Testing</h2>
-<p>To test whether there are four statistically distinct clusters (k = 4) versus no clusters (k = 1) using the PAM algorithm, we run <code>sigclust</code> with 50 simulations and generate a p-value for this significance test.</p>
+<p>To test whether there are four statistically distinct clusters (k =
+4) versus no clusters (k = 1) using the PAM algorithm, we run
+<code>sigclust</code> with 50 simulations and generate a p-value for
+this significance test.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>pam_4 <span class="ot">&lt;-</span> ccomb_class2<span class="sc">$</span><span class="st">`</span><span class="at">4</span><span class="st">`</span>[, <span class="st">&quot;PAM_Euclidean&quot;</span>]</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>sig_obj <span class="ot">&lt;-</span> <span class="fu">sigclust</span>(hgsc, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">nsim =</span> <span class="dv">100</span>, <span class="at">labflag =</span> <span class="dv">0</span>, <span class="at">label =</span> pam_4)</span>
@@ -694,20 +1031,43 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] &quot;..@ pval : num 0.23&quot;                                                        </span></span>
 <span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [14] &quot;..@ pvalnorm : num 0.206&quot;                                                   </span></span>
 <span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15] &quot;..@ xcindex : num 0.63&quot;</span></span></code></pre></div>
-<p>The p-value is 0.23, indicating we do not have sufficient evidence to conclude there are four distinct clusters. Note that we did not use the full <code>hgsc</code> data set in this example, so the underlying biological mechanisms may not be fully captured.</p>
+<p>The p-value is 0.23, indicating we do not have sufficient evidence to
+conclude there are four distinct clusters. Note that we did not use the
+full <code>hgsc</code> data set in this example, so the underlying
+biological mechanisms may not be fully captured.</p>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
 <ol style="list-style-type: decimal">
-<li>Estivill-Castro, Vladimir (20 June 2002). “Why so many clustering algorithms — A Position Paper”. ACM SIGKDD Explorations Newsletter. 4 (1): 65–75.</li>
-<li>Brendan J. Frey; Delbert Dueck (2007). “Clustering by passing messages between data points”. Science. 315 (5814): 972–976.</li>
-<li>C. Fraley, A. E. Raftery, T. B. Murphy and L. Scrucca (2012). mclust Version 4 for R: Normal Mixture Modeling for Model-Based Clustering, Classification, and Density Estimation. Technical Report No. 597, Department of Statistics, University of Washington.</li>
-<li>Campello, R. J. G. B.; Moulavi, D.; Sander, J. (2013). Density-Based Clustering Based on Hierarchical Density Estimates. Proceedings of the 17th Pacific-Asia Conference on Knowledge Discovery in Databases, PAKDD 2013, Lecture Notes in Computer Science 7819, p. 160.</li>
-<li>Campello, Ricardo JGB, et al. “Hierarchical density estimates for data clustering, visualization, and outlier detection.” ACM Transactions on Knowledge Discovery from Data (TKDD) 10.1 (2015): 5.</li>
-<li>G. Govaert and M. Nadif. Latent block model for contingency table. Communications in Statistics - Theory and Methods, 39(3):416–425, 2010.</li>
-<li>Isa, Dino, V. P. Kallimani, and Lam Hong Lee. “Using the self organizing map for clustering of text documents.” Expert Systems with Applications 36.5 (2009): 9584-9591.</li>
-<li>Andrew Y. Ng, Michael I. Jordan, Yair Weiss On Spectral Clustering: Analysis and an Algorithm Neural Information Processing Symposium 2001</li>
-<li>Brunet J, Tamayo P, Golub TR and Mesirov JP (2004). “Metagenes and molecular pattern discovery using matrix factorization.” Proceedings of the National Academy of Sciences of the United States of America, 101(12), pp. 4164-9.</li>
+<li>Estivill-Castro, Vladimir (20 June 2002). “Why so many clustering
+algorithms — A Position Paper”. ACM SIGKDD Explorations Newsletter. 4
+(1): 65–75.</li>
+<li>Brendan J. Frey; Delbert Dueck (2007). “Clustering by passing
+messages between data points”. Science. 315 (5814): 972–976.</li>
+<li>C. Fraley, A. E. Raftery, T. B. Murphy and L. Scrucca (2012). mclust
+Version 4 for R: Normal Mixture Modeling for Model-Based Clustering,
+Classification, and Density Estimation. Technical Report No. 597,
+Department of Statistics, University of Washington.</li>
+<li>Campello, R. J. G. B.; Moulavi, D.; Sander, J. (2013). Density-Based
+Clustering Based on Hierarchical Density Estimates. Proceedings of the
+17th Pacific-Asia Conference on Knowledge Discovery in Databases, PAKDD
+2013, Lecture Notes in Computer Science 7819, p. 160.</li>
+<li>Campello, Ricardo JGB, et al. “Hierarchical density estimates for
+data clustering, visualization, and outlier detection.” ACM Transactions
+on Knowledge Discovery from Data (TKDD) 10.1 (2015): 5.</li>
+<li>G. Govaert and M. Nadif. Latent block model for contingency table.
+Communications in Statistics - Theory and Methods, 39(3):416–425,
+2010.</li>
+<li>Isa, Dino, V. P. Kallimani, and Lam Hong Lee. “Using the self
+organizing map for clustering of text documents.” Expert Systems with
+Applications 36.5 (2009): 9584-9591.</li>
+<li>Andrew Y. Ng, Michael I. Jordan, Yair Weiss On Spectral Clustering:
+Analysis and an Algorithm Neural Information Processing Symposium
+2001</li>
+<li>Brunet J, Tamayo P, Golub TR and Mesirov JP (2004). “Metagenes and
+molecular pattern discovery using matrix factorization.” Proceedings of
+the National Academy of Sciences of the United States of America,
+101(12), pp. 4164-9.</li>
 </ol>
 </div>
 

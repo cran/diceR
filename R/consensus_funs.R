@@ -146,14 +146,17 @@ LCE <- function(E, k, dc = 0.8, R = 10, sim.mat = c("cts", "srs", "asrs")) {
 #' @family consensus functions
 #' @author Derek Chiu
 #' @export
-#' @examples
+#' @examplesIf rlang::is_installed("poLCA")
 #' data(hgsc)
 #' dat <- hgsc[1:100, 1:50]
 #' cc <- consensus_cluster(dat, nk = 4, reps = 6, algorithms = "pam", progress =
 #' FALSE)
 #' table(LCA(cc[, , 1, 1, drop = FALSE], is.relabelled = FALSE))
 LCA <- function(E, is.relabelled = TRUE, seed = 1) {
-  if (requireNamespace("poLCA", quietly = TRUE)) {
+  if (!requireNamespace("poLCA", quietly = TRUE)) {
+    stop("Package \"poLCA\" is needed. Please install it.",
+         call. = FALSE)
+  } else {
     if (!"package:MASS" %in% search()) attachNamespace("MASS")
     flat_E <- E %>%
       flatten_E(is.relabelled = is.relabelled) %>%

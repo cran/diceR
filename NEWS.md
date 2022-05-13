@@ -1,3 +1,8 @@
+# diceR 1.2.0
+
+* Use `testthat::skip_if_not_installed()` to run tests conditionally when using packages in Suggests
+* Use roxygen tag `@examplesIf` and `rlang::is_installed()` to run examples conditionally when using packages in Suggests
+
 # diceR 1.1.0
 
 * Reinstate `blockcluster` package as it is under active maintenance again
