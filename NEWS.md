@@ -1,3 +1,9 @@
+# diceR 1.2.1
+
+* References added for `k_modes()` and `CSPA()` consensus functions (#157)
+* Update roxygen2 to avoid HTML5 documentation notes
+* Use `mixedClust` instead of `blockcluster` for co-clustering since the latter keeps getting archived
+
 # diceR 1.2.0
 
 * Use `testthat::skip_if_not_installed()` to run tests conditionally when using packages in Suggests
