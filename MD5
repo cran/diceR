@@ -1,7 +1,7 @@
-906966f85a713fb09dedbcb04b0693c2 *DESCRIPTION
+b458f0dd67d6591ab7575096091d8315 *DESCRIPTION
 4a36d9bcdcb97f72ae6e0cadaf7422b6 *LICENSE
 c150f2773b97b5057cb9107b52f2f1af *NAMESPACE
-397d34a88d2fe6ab14e622dd86c9e298 *NEWS.md
+82811df18b7fa31552e3f6c8a0bfe1f3 *NEWS.md
 6ef4eacf7b470cddf8a19b06aab76103 *R/PAC.R
 eb8423cfb5ddd8437dc65e7037d687d7 *R/RcppExports.R
 3790a041a143f42a4a3be2383dc1105f *R/algorithms.R
@@ -11,10 +11,10 @@ aa15d7e6f8d3eadf77739dccd3185524 *R/consensus_combine.R
 2dd884b318ba4d66099da741cb4d41f8 *R/consensus_funs.R
 112bbf844921037b5c511ce261e39ede *R/consensus_matrix.R
 217a7f7914036b7d67868d035a19788c *R/data.R
-3ea7974a5d33cf18be286533a4873ace *R/dice.R
+dc9350d16b7682f4f8d545810d8c68cc *R/dice.R
 21d1b733272ae75b45c628e9aa5b76a4 *R/diceR-package.R
 0739d09658f0f99abde1c79e2561976d *R/external_validity.R
-3ac6dbaa611f939eb971939aad7e899a *R/graphs.R
+9751051493d2c41096b8999ff5d04837 *R/graphs.R
 5da8ed1ad82df4c37a9689ba09f24f9b *R/impute.R
 a0a5f28b9253f6a997e82c6b007b195c *R/pcn.R
 15d73b1142ee59ec68fa5d8bf2fe5bb7 *R/prepare_data.R
@@ -22,13 +22,13 @@ a845c556a116f16260287b073bb8f519 *R/sigclust.R
 2d4325f0cdfd9f16a5579238d6c69091 *R/similarity.R
 92cfaee7aa87064082b78d4b33ec26fe *R/utils.R
 ce7c1ebbd4c4d7aee6d9855513d1fa58 *R/zzz.R
-4250b32cbc31af3927c3ef7951e41e24 *README.md
+a8d9b2c93498d4413c96d5837309cac2 *README.md
 ea124a494ad7922985532ad3b308e4d5 *build/partial.rdb
 1e70f46bcb0b55a6bc67e127b041d64d *build/vignette.rds
 f366710ac60a5df402e593ea90cf8e47 *data/hgsc.rda
 0dbfd6773865fe48d3b5cea6d9a075bb *inst/doc/overview.R
 02aedb4be752007f95328060574e0e95 *inst/doc/overview.Rmd
-42a39e53d1795e641ab653ca4b2fb24e *inst/doc/overview.html
+bec8a66fac15998d24160831642d355f *inst/doc/overview.html
 3ba625a2bad5258f5fa643c9af0a9a42 *man/CSPA.Rd
 669b0f977caa735096de184845b551ca *man/LCA.Rd
 f421e3cb6aafcf49fdc8a687992cf077 *man/LCE.Rd
@@ -38,7 +38,7 @@ aedc568178d47098f7236844cede4fee *man/compactness.Rd
 bbfa8fd959915e7f5c07e1aaea24f49b *man/consensus_combine.Rd
 b4ddc52c51dab67cd33e80f5481e471b *man/consensus_evaluate.Rd
 50931d4c5c8c13d423c66defb9e3b105 *man/consensus_matrix.Rd
-5eb5e71679f79b837335e995a31ca346 *man/dice.Rd
+e1237b8733fc07da9ef900616b2848b5 *man/dice.Rd
 9614ce6dd55584526483da5acc79c3d6 *man/diceR-package.Rd
 97fea4857b31b5f9ea92d90351a7b93a *man/external_validity.Rd
 64829ea7feb43c1dc968c687f4754808 *man/figures/logo.png

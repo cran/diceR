@@ -1,3 +1,9 @@
+# diceR 2.1.0
+
+* Sort cluster sizes `k` correctly in relative change in area under CDF curve (@IgnatiusPang, #167) and consensus matrix CDF graphs
+* Replace deprecated `aes_` calls with tidyeval idioms
+* Pass `p.item` and `seed.data` arguments to `dice()` (#162, #165)
+
 # diceR 2.0.0
 
 Internal and external validity indices were refactored to avoid using helper functions from the `clusterCrit` package, which is scheduled to be archived. Please adapt your code if it extracts deprecated validity indices, as described below.

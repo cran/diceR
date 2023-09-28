@@ -7,6 +7,7 @@
 dice(
   data,
   nk,
+  p.item = 0.8,
   reps = 10,
   algorithms = NULL,
   k.method = NULL,
@@ -18,6 +19,7 @@ dice(
   prep.data = c("none", "full", "sampled"),
   min.var = 1,
   seed = 1,
+  seed.data = 1,
   trim = FALSE,
   reweigh = FALSE,
   n = 5,
@@ -32,6 +34,9 @@ dice(
 
 \item{nk}{number of clusters (k) requested; can specify a single integer or a
 range of integers to compute multiple k}
+
+\item{p.item}{proportion of items to be used in subsampling within an
+algorithm}
 
 \item{reps}{number of subsamples}
 
@@ -75,6 +80,9 @@ be used. If \code{type = "conventional"}, the standard deviation is the measure
 used, and if \code{type = "robust"}, the MAD is the measure used.}
 
 \item{seed}{random seed for knn imputation reproducibility}
+
+\item{seed.data}{seed to use to ensure each algorithm operates on the same
+set of subsamples}
 
 \item{trim}{logical; if \code{TRUE}, algorithms that score low on internal indices
 will be trimmed out}

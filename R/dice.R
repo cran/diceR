@@ -44,13 +44,13 @@
 #' dice.obj <- dice(dat, nk = 4, reps = 5, algorithms = "hc", cons.funs =
 #' "kmodes", ref.cl = ref.cl, progress = FALSE)
 #' str(dice.obj, max.level = 2)
-dice <- function(data, nk, reps = 10, algorithms = NULL, k.method = NULL,
+dice <- function(data, nk, p.item = 0.8, reps = 10, algorithms = NULL, k.method = NULL,
                  nmf.method = c("brunet", "lee"), hc.method = "average",
                  distance = "euclidean",
                  cons.funs = c("kmodes", "majority", "CSPA", "LCE", "LCA"),
                  sim.mat = c("cts", "srs", "asrs"),
                  prep.data = c("none", "full", "sampled"), min.var = 1,
-                 seed = 1, trim = FALSE, reweigh = FALSE, n = 5,
+                 seed = 1, seed.data = 1, trim = FALSE, reweigh = FALSE, n = 5,
                  evaluate = TRUE, plot = FALSE, ref.cl = NULL,
                  progress = TRUE) {
 
@@ -59,11 +59,11 @@ dice <- function(data, nk, reps = 10, algorithms = NULL, k.method = NULL,
   prep.data <- match.arg(prep.data)
 
   # Generate Diverse Cluster Ensemble
-  E <- consensus_cluster(data = data, nk = nk, reps = reps,
+  E <- consensus_cluster(data = data, nk = nk, p.item = p.item, reps = reps,
                          algorithms = algorithms, nmf.method = nmf.method,
                          hc.method = hc.method, distance = distance,
                          prep.data = prep.data, min.var = min.var,
-                         progress = progress)
+                         seed.data = seed.data, progress = progress)
   # KNN imputation
   Eknn <- apply(E, 2:4, impute_knn, data = data, seed = seed)
 
