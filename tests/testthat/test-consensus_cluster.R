@@ -5,6 +5,7 @@ test_that("No algorithms means all algorithms, output is an array", {
   skip_if_not_installed("apcluster")
   skip_if_not_installed("blockcluster")
   skip_if_not_installed("cluster")
+  skip_if_not_installed("dbscan")
   skip_if_not_installed("e1071")
   skip_if_not_installed("kernlab")
   skip_if_not_installed("kohonen")
@@ -34,9 +35,13 @@ test_that("Progress bar increments across entire function call", {
 })
 
 test_that("Able to call only spearman distance", {
-  x4 <- consensus_cluster(hgsc, nk = 2, reps = 5, algorithms = "hc",
+  x4a <- consensus_cluster(hgsc, nk = 2, reps = 5, algorithms = "hc",
                           distance = "spear")
-  expect_error(x4, NA)
+  expect_error(x4a, NA)
+
+  x4b <- consensus_cluster(hgsc, nk = 2, reps = 5, algorithms = "hc",
+                           distance = "spear", abs = FALSE)
+  expect_error(x4b, NA)
 })
 
 test_that("Data preparation on bootstrap samples works", {
@@ -57,4 +62,10 @@ test_that("t-SNE dimension reduction works", {
   x7 <- consensus_cluster(hgsc, nk = 4, reps = 1, algorithms = c("hc", "km"),
                           type = "tsne")
   expect_error(x7, NA)
+})
+
+test_that("Able to call Pearson distance", {
+  x8 <- consensus_cluster(hgsc, nk = 2, reps = 5, algorithms = "hc",
+                          distance = "pearson")
+  expect_error(x8, NA)
 })
